@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -20,12 +19,12 @@ class ProductController extends Controller
 
         // Filtre par catégorie (slug)
         if ($request->filled('category')) {
-            $query->whereHas('category', fn($q) => $q->where('slug', $request->category));
+            $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
         }
 
         // Filtre par boutique (slug)
         if ($request->filled('shop')) {
-            $query->whereHas('shop', fn($q) => $q->where('slug', $request->shop));
+            $query->whereHas('shop', fn ($q) => $q->where('slug', $request->shop));
         }
 
         // Filtre produits à la une
@@ -35,7 +34,7 @@ class ProductController extends Controller
 
         // Recherche textuelle
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // Filtre prix max
@@ -85,7 +84,7 @@ class ProductController extends Controller
     public function vendorIndex(Request $request)
     {
         $shop = $request->user()->shop;
-        if (!$shop) {
+        if (! $shop) {
             return response()->json(['data' => [], 'message' => 'Boutique non trouvée'], 200);
         }
 
@@ -100,17 +99,17 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'price'       => 'required|numeric|min:0',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
             'promo_price' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'stock'       => 'integer|min:0',
-            'image'       => 'nullable|string|url',
+            'stock' => 'integer|min:0',
+            'image' => 'nullable|string|url',
         ]);
 
         $shop = $request->user()->shop;
-        if (!$shop) {
+        if (! $shop) {
             return response()->json(['message' => "Créez d'abord une boutique"], 403);
         }
 
@@ -118,14 +117,14 @@ class ProductController extends Controller
         $original = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $original . '-' . $i++;
+            $slug = $original.'-'.$i++;
         }
 
         $product = $shop->products()->create([
             ...$validated,
-            'slug'   => $slug,
-            'stock'  => $validated['stock'] ?? 0,
-            'status' => 'brouillon',
+            'slug' => $slug,
+            'stock' => $validated['stock'] ?? 0,
+            'status' => 'pending',
         ]);
 
         return response()->json([
@@ -140,19 +139,19 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $shop = $request->user()->shop;
-        if (!$shop || $product->shop_id !== $shop->id) {
+        if (! $shop || $product->shop_id !== $shop->id) {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
         $validated = $request->validate([
-            'name'        => 'sometimes|string|max:255',
-            'price'       => 'sometimes|numeric|min:0',
+            'name' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:0',
             'promo_price' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'stock'       => 'integer|min:0',
-            'status'      => 'sometimes|in:brouillon,publié',
-            'image'       => 'nullable|string',
+            'stock' => 'integer|min:0',
+            'status' => 'sometimes|in:brouillon,publié',
+            'image' => 'nullable|string',
         ]);
 
         $product->update($validated);
@@ -169,7 +168,7 @@ class ProductController extends Controller
     public function destroy(Request $request, Product $product)
     {
         $shop = $request->user()->shop;
-        if (!$shop || $product->shop_id !== $shop->id) {
+        if (! $shop || $product->shop_id !== $shop->id) {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
@@ -188,7 +187,7 @@ class ProductController extends Controller
         ]);
 
         $path = $request->file('image')->store('products', 'public');
-        $url = asset('storage/' . $path);
+        $url = asset('storage/'.$path);
 
         return response()->json(['url' => $url]);
     }

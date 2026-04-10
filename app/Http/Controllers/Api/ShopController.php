@@ -28,7 +28,7 @@ class ShopController extends Controller
     public function show($slug)
     {
         $shop = Shop::with([
-            'products' => fn($q) => $q->where('status', 'publié')->latest()
+            'products' => fn ($q) => $q->where('status', 'publié')->latest(),
         ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -42,8 +42,8 @@ class ShopController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'location'    => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
@@ -53,25 +53,25 @@ class ShopController extends Controller
 
         $slug = Str::slug($request->name);
         $original = $slug;
-        $counter  = 1;
+        $counter = 1;
         while (Shop::where('slug', $slug)->exists()) {
-            $slug = $original . '-' . $counter++;
+            $slug = $original.'-'.$counter++;
         }
 
         $request->user()->update(['role' => 'vendeur']);
 
         $shop = Shop::create([
-            'user_id'     => $request->user()->id,
-            'name'        => $request->name,
-            'slug'        => $slug,
-            'location'    => $request->location,
+            'user_id' => $request->user()->id,
+            'name' => $request->name,
+            'slug' => $slug,
+            'location' => $request->location,
             'description' => $request->description,
-            'status'      => 'active', // actif par défaut pour les démos
+            'status' => 'pending', // en attente validation admin
         ]);
 
         return response()->json([
             'message' => 'Boutique créée avec succès',
-            'shop'    => $shop,
+            'shop' => $shop,
         ], 201);
     }
 
@@ -85,18 +85,18 @@ class ShopController extends Controller
         }
 
         $request->validate([
-            'name'        => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'location'    => 'sometimes|string|max:255',
-            'logo'        => 'nullable|string',
-            'banner'      => 'nullable|string',
+            'location' => 'sometimes|string|max:255',
+            'logo' => 'nullable|string',
+            'banner' => 'nullable|string',
         ]);
 
         $shop->update($request->only(['name', 'description', 'location', 'logo', 'banner']));
 
         return response()->json([
             'message' => 'Boutique mise à jour',
-            'shop'    => $shop->fresh(),
+            'shop' => $shop->fresh(),
         ]);
     }
 }
