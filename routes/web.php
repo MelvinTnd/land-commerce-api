@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -16,9 +17,17 @@ Route::get('/', function () {
 });
 
 // ══════════════════════════════════════════════
-// ADMIN DASHBOARD — Heritage Modernist Marketplace
+// AUTH ADMIN — Connexion / Déconnexion
 // ══════════════════════════════════════════════
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/admin/login',  [AdminAuthController::class, 'showLogin'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// ══════════════════════════════════════════════
+// ADMIN DASHBOARD — Heritage Modernist Marketplace
+// Protégé par authentification (rôle admin)
+// ══════════════════════════════════════════════
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
 
     // ── Dashboard ──────────────────────────────
     Route::get('/',           [DashboardController::class, 'index'])->name('dashboard');
@@ -38,9 +47,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/products/{id}',       [AdminProductController::class, 'destroy'])->name('products.destroy');
 
     // ── Commandes ────────────────────────────────
-    Route::get('/orders',             [AdminOrderController::class, 'index'])       ->name('orders');
-    Route::get('/orders/{id}',        [AdminOrderController::class, 'show'])        ->name('orders.show');
-    Route::patch('/orders/{id}/status',[AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::get('/orders',              [AdminOrderController::class, 'index'])        ->name('orders');
+    Route::get('/orders/{id}',         [AdminOrderController::class, 'show'])         ->name('orders.show');
+    Route::patch('/orders/{id}/status',[AdminOrderController::class, 'updateStatus']) ->name('orders.status');
 
     // ── Promotions ────────────────────────────────
     Route::get('/promotions',              [AdminPromotionController::class, 'index'])  ->name('promotions');
@@ -69,6 +78,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/users/{id}',      [AdminUserController::class, 'destroy'])     ->name('users.destroy');
     Route::patch('/users/{id}/toggle',[AdminUserController::class, 'toggleStatus'])->name('users.toggle');
 
-    // ── Pages Settings ────────────────────────────
+    // ── Paramètres ────────────────────────────────
     Route::get('/settings', fn() => view('admin.settings'))->name('settings');
 });

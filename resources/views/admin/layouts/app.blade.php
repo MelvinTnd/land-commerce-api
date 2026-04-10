@@ -12,10 +12,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
     <style>
-        /* Prevent Material Symbols FOUT — font-size:0 until loaded */
+        /* Prevent Material Symbols FOUT — completely hide text/icon until the font is loaded */
         html:not(.mso-loaded) .material-symbols-outlined {
-            font-size: 0 !important;
-            line-height: 0;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            display: inline-block;
+            width: 1em; /* maintain space */
         }
     </style>
 
@@ -124,6 +126,14 @@
         }
         .adm-user-info strong { display:block; font-size:12px; font-weight:600; }
         .adm-user-info small  { font-size:10px; color:var(--adm-text3); }
+        .adm-logout-btn {
+            margin-left:auto; background:none; border:none; cursor:pointer;
+            padding:6px; border-radius:6px; display:flex; align-items:center;
+            color:var(--adm-text3); transition:background 0.15s, color 0.15s;
+            flex-shrink:0;
+        }
+        .adm-logout-btn:hover { background:var(--adm-red-soft); color:var(--adm-red); }
+        .adm-logout-btn .material-symbols-outlined { font-size:18px; }
 
         /* ── MAIN ── */
         .adm-main { margin-left:var(--adm-sidebar-w); flex:1; display:flex; flex-direction:column; min-height:100vh; }
@@ -355,11 +365,23 @@
         </nav>
 
         <div class="adm-sidebar-footer">
-            <div class="adm-user-avatar">JK</div>
+            @php
+                $authUser    = auth()->user();
+                $authInitials = collect(explode(' ', $authUser->name ?? 'Admin'))
+                                ->map(fn($w) => strtoupper(substr($w,0,1)))
+                                ->take(2)->implode('');
+            @endphp
+            <div class="adm-user-avatar">{{ $authInitials }}</div>
             <div class="adm-user-info">
-                <strong>Jean-Marc Koffi</strong>
+                <strong>{{ $authUser->name ?? 'Administrateur' }}</strong>
                 <small>Super Admin</small>
             </div>
+            <form method="POST" action="{{ route('admin.logout') }}" style="margin:0">
+                @csrf
+                <button type="submit" class="adm-logout-btn" title="Déconnexion">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -377,7 +399,7 @@
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="adm-notif-dot"></span>
                 </button>
-                <span class="adm-header-user">Heritage Admin</span>
+                <span class="adm-header-user">{{ auth()->user()->name ?? 'Administrateur' }}</span>
             </div>
         </header>
 

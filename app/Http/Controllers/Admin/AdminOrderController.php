@@ -29,10 +29,10 @@ class AdminOrderController extends Controller
 
         $stats = [
             'total' => Order::count(),
-            'pending' => Order::where('status', 'pending')->count(),
-            'processing' => Order::where('status', 'processing')->count(),
-            'delivered' => Order::where('status', 'delivered')->count(),
-            'revenue' => Order::where('status', 'delivered')->sum('total') ?? 0,
+            'pending' => Order::where('status', 'en_attente')->count(),
+            'processing' => Order::whereIn('status', ['payee', 'en_livraison'])->count(),
+            'delivered' => Order::where('status', 'livree')->count(),
+            'revenue' => Order::where('status', 'livree')->sum('total_amount') ?? 0,
         ];
 
         return view('admin.orders.index', compact('orders', 'stats'));
@@ -47,7 +47,7 @@ class AdminOrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-        $request->validate(['status' => 'required|in:pending,processing,shipped,delivered,cancelled']);
+        $request->validate(['status' => 'required|in:en_attente,payee,en_livraison,livree,annulee']);
         $order->update(['status' => $request->status]);
 
         return back()->with('success',
