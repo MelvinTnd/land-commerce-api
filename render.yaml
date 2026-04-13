@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: land-commerce-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: APP_NAME
+        value: BéninMarket
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        fromService:
+          type: web
+          name: land-commerce-api
+          property: host
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromDatabase:
+          name: beninmarket-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: beninmarket-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: beninmarket-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: beninmarket-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: beninmarket-db
+          property: password
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+
+databases:
+  - name: beninmarket-db
+    plan: free
+    databaseName: beninmarket
