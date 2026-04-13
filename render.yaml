@@ -21,25 +21,15 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        fromDatabase:
-          name: beninmarket-db
-          property: host
+        value: metro.proxy.rlwy.net
       - key: DB_PORT
-        fromDatabase:
-          name: beninmarket-db
-          property: port
+        value: 17739
       - key: DB_DATABASE
-        fromDatabase:
-          name: beninmarket-db
-          property: database
+        value: railway
       - key: DB_USERNAME
-        fromDatabase:
-          name: beninmarket-db
-          property: user
+        value: root
       - key: DB_PASSWORD
-        fromDatabase:
-          name: beninmarket-db
-          property: password
+        value: oYKfRuqupZDockupKNDqavnlwlmpUBIs
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_STORE
@@ -50,8 +40,3 @@ services:
         value: stderr
       - key: LOG_LEVEL
         value: error
-
-databases:
-  - name: beninmarket-db
-    plan: free
-    databaseName: beninmarket
