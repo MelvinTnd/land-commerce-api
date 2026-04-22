@@ -99,13 +99,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
             'promo_price' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'stock' => 'integer|min:0',
-            'image' => 'nullable|string|url',
+            'stock'       => 'integer|min:0',
+            'image'       => 'nullable|string',   // URL ou base64
         ]);
 
         $shop = $request->user()->shop;
@@ -122,9 +122,9 @@ class ProductController extends Controller
 
         $product = $shop->products()->create([
             ...$validated,
-            'slug' => $slug,
-            'stock' => $validated['stock'] ?? 0,
-            'status' => 'pending',
+            'slug'   => $slug,
+            'stock'  => $validated['stock'] ?? 0,
+            'status' => 'publié',  // publié directement pour les vendeurs
         ]);
 
         return response()->json([
