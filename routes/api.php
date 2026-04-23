@@ -49,6 +49,16 @@ Route::get('/forum-topics/{topic}', [ForumTopicController::class, 'show']);
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
+// Promotions publiques
+Route::get('/promotions', function () {
+    return response()->json(
+        \App\Models\Promotion::where('actif', true)
+            ->where('date_fin', '>=', now())
+            ->orderBy('date_fin', 'asc')
+            ->get()
+    );
+});
+
 // ============================================================
 // ROUTES SÉCURISÉES (token Sanctum requis)
 // ============================================================
