@@ -22,6 +22,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
+# ── Préparer le fichier .env pour le build ───────────────────────────────────
+RUN cp .env.example .env
+
 # ── Dépendances PHP ───────────────────────────────────────────────────────────
 RUN composer install --optimize-autoloader --no-dev --no-interaction
 
