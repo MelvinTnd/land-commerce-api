@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — Heritage Modernist Admin</title>
+    <title>@yield('title', 'Dashboard') — BéninMarket Admin</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -336,7 +336,7 @@
                 <span class="material-symbols-outlined">storefront</span>
             </div>
             <div class="adm-logo-text">
-                <strong>Heritage Modernist</strong>
+                <strong>BéninMarket</strong>
                 <small>Marketplace Admin</small>
             </div>
         </div>
@@ -352,8 +352,6 @@
                 ['route'=>'admin.orders',       'label'=>'Commandes',    'icon'=>'receipt_long'],
                 ['route'=>'admin.promotions',   'label'=>'Promotions',   'icon'=>'local_offer'],
                 ['route'=>'admin.users',        'label'=>'Utilisateurs', 'icon'=>'group'],
-                ['route'=>'admin.blog',         'label'=>'Blog/News',    'icon'=>'article'],
-                ['route'=>'admin.community',    'label'=>'Communauté',   'icon'=>'forum'],
                 ['route'=>'admin.settings',     'label'=>'Paramètres',   'icon'=>'settings'],
             ] as $item)
                 <a href="{{ route($item['route']) }}"
@@ -424,7 +422,7 @@
 
             <!-- Footer -->
             <footer class="adm-footer">
-                <span>© 2024 Heritage Modernist Marketplace. Tous droits réservés.</span>
+                <span>© 2026 BéninMarket. Tous droits réservés.</span>
                 <div class="adm-footer-links">
                     <a href="#">Support Technique</a>
                     <a href="#">Politique de Confidentialité</a>
@@ -563,7 +561,7 @@
         document.documentElement.classList.add('mso-loaded');
     });
     // fallback: show after 1.5s even if font fails
-    setTimeout(() => document.documentElement.classList.add('mso-loaded'), 1500);
+    setTimeout(() => document.documentElement.classList.add('mso-loaded'), 400);
     </script>
 
 </body>

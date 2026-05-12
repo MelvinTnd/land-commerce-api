@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ForumTopic;
-use App\Models\Article;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -24,19 +23,29 @@ class DashboardController extends Controller
             'new_users'        => User::where('created_at', '>=', now()->startOfMonth())->count(),
             'products'         => Product::count(),
             'pending_products' => Product::where('status', 'pending')->count(),
+            'orders_total'     => Order::count(),
+            'orders_pending'   => Order::whereIn('status', ['pending', 'en_attente'])->count(),
+            'shops_total'      => Shop::count(),
+            'shops_active'     => Shop::where('status', 'active')->count(),
         ];
 
-        // ForumTopic fields: titre, auteur, votes, commentaires, tag, image
-        $discussions = ForumTopic::latest()->take(4)->get();
+        // Discussions : fonctionnalité non implémentée → collection vide
+        $discussions = collect([]);
 
-        // Article fields: titre, auteur, categorie, content, description, image, read_time
-        $articles = Article::latest()->take(2)->get();
+        // Articles de blog
+        $articles = collect([]);
 
-        // Shop fields: name, slug, location, status, user_id (-> user relation)
-        $pendingShops = Shop::with('user')->latest()->take(5)->get();
+        // Boutiques récentes
+        $pendingShops = Shop::with('user')->latest()->take(6)->get();
+
+        // Commandes récentes
+        $recentOrders = Order::with(['user', 'items'])
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('admin.dashboard', compact(
-            'stats', 'discussions', 'articles', 'pendingShops'
+            'stats', 'discussions', 'articles', 'pendingShops', 'recentOrders'
         ));
     }
 

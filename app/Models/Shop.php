@@ -19,6 +19,8 @@ class Shop extends Model
         'rccm',
         'status',
         'commission_rate',
+        'avg_rating',
+        'total_reviews',
     ];
 
     public function user(): BelongsTo
@@ -29,5 +31,10 @@ class Shop extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(\App\Models\Review::class);
     }
 }

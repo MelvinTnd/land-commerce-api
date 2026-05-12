@@ -12,14 +12,29 @@ class ShopController extends Controller
     /**
      * Liste des boutiques actives
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Shop::where('status', 'active')
-                ->withCount('products')
-                ->latest()
-                ->get()
-        );
+        $query = Shop::where('status', 'active')
+            ->withCount('products');
+
+        // Recherche textuelle
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('description', 'like', "%{$term}%")
+                  ->orWhere('location', 'like', "%{$term}%");
+            });
+        }
+
+        $query->latest();
+
+        // Limite optionnelle (pour recherche globale)
+        if ($request->filled('limit')) {
+            $query->limit((int) $request->limit);
+        }
+
+        return response()->json($query->get());
     }
 
     /**

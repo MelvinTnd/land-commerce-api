@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Connexion — Heritage Modernist Admin</title>
+    <title>Connexion — BéninMarket Admin</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -454,16 +454,16 @@
                 <span class="material-symbols-outlined">storefront</span>
             </div>
             <div>
-                <div class="brand-name">Heritage Modernist</div>
+                <div class="brand-name">BéninMarket</div>
                 <div class="brand-sub">Marketplace Admin</div>
             </div>
         </div>
 
         <div class="login-left-content">
-            <h1>Gérez votre<br><span>Écosystème</span><br>Marketplace.</h1>
+            <h1>Gérez votre<br><span>BéninMarket</span><br>Marketplace.</h1>
             <p>
-                Plateforme d'administration complète pour superviser vendeurs,
-                produits, commandes et la communauté du marché Heritage Modernist.
+                Plateforme d&apos;administration complète pour superviser vendeurs,
+                produits, commandes et les boutiques artisanales du Bénin.
             </p>
 
             <ul class="login-features">
@@ -495,7 +495,7 @@
         </div>
 
         <div class="login-left-footer">
-            © {{ date('Y') }} Heritage Modernist Marketplace. Tous droits réservés.
+            © {{ date('Y') }} BéninMarket. Tous droits réservés.
         </div>
     </div>
 
@@ -544,7 +544,7 @@
                             id="email"
                             name="email"
                             class="form-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                            placeholder="admin@heritage.bj"
+                            placeholder="admin@beninmarket.com"
                             value="{{ old('email') }}"
                             autocomplete="email"
                             required
@@ -627,7 +627,7 @@
 
         /* ─── Material Symbols FOUT fix ─── */
         document.fonts.ready.then(() => document.documentElement.classList.add('mso-loaded'));
-        setTimeout(() => document.documentElement.classList.add('mso-loaded'), 1500);
+        setTimeout(() => document.documentElement.classList.add('mso-loaded'), 400);
     </script>
 
 </body>

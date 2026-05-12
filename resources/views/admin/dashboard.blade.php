@@ -7,26 +7,26 @@
     {{-- ── PAGE HEADER ── --}}
     <div class="adm-page-header">
         <div>
-            <h1>Tableau de bord Global</h1>
-            <p>Bienvenue, voici l'état de votre écosystème aujourd'hui.</p>
+            <h1>Tableau de bord</h1>
+            <p>Bienvenue sur BéninMarket Admin — voici l'état de la plateforme aujourd'hui.</p>
         </div>
         <div class="adm-header-actions">
             <a href="{{ route('admin.export.pdf') }}" class="adm-btn adm-btn-outline">
                 <span class="material-symbols-outlined">picture_as_pdf</span>
                 Exporter PDF
             </a>
-            <button class="adm-btn adm-btn-primary">
-                <span class="material-symbols-outlined">campaign</span>
-                Nouvelle Campagne
-            </button>
+            <a href="{{ route('admin.sellers') }}" class="adm-btn adm-btn-primary">
+                <span class="material-symbols-outlined">storefront</span>
+                Gérer vendeurs
+            </a>
         </div>
     </div>
 
     {{-- ── STAT CARDS ── --}}
-    <div class="adm-stats-grid">
+    <div class="adm-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
 
         {{-- Commissions --}}
-        <div class="adm-stat-card featured">
+        <div class="adm-stat-card">
             <div class="adm-stat-card-top">
                 <div class="adm-stat-icon green">
                     <span class="material-symbols-outlined">payments</span>
@@ -35,18 +35,12 @@
                     <span class="material-symbols-outlined">trending_up</span>+12.5%
                 </span>
             </div>
-            <div class="adm-stat-label">Volume des Commissions</div>
-            <div class="adm-stat-value large">
+            <div class="adm-stat-label">Commission totale</div>
+            <div class="adm-stat-value">
                 {{ number_format($stats['commissions'], 0, ',', '.') }}
                 <span class="adm-stat-unit">FCFA</span>
             </div>
-            <div class="adm-mini-chart">
-                @php $bars = [35, 50, 40, 60, 55, 75, 90]; @endphp
-                @foreach($bars as $idx => $h)
-                    <div class="adm-mini-bar @if($idx === count($bars)-1) active @endif"
-                         style="height:{{ $h }}%"></div>
-                @endforeach
-            </div>
+            <div class="adm-stat-sub">5% sur les ventes payées</div>
         </div>
 
         {{-- Utilisateurs --}}
@@ -56,10 +50,24 @@
                     <span class="material-symbols-outlined">group</span>
                 </div>
             </div>
-            <div class="adm-stat-label">Utilisateurs Actifs</div>
+            <div class="adm-stat-label">Utilisateurs actifs</div>
             <div class="adm-stat-value">{{ number_format($stats['users'], 0, ',', '.') }}</div>
             <div class="adm-stat-sub">
-                <strong>{{ number_format($stats['new_users'], 0, ',', '.') }}</strong> nouveaux ce mois
+                <strong>{{ $stats['new_users'] }}</strong> nouveaux ce mois
+            </div>
+        </div>
+
+        {{-- Boutiques --}}
+        <div class="adm-stat-card">
+            <div class="adm-stat-card-top">
+                <div class="adm-stat-icon green">
+                    <span class="material-symbols-outlined">storefront</span>
+                </div>
+            </div>
+            <div class="adm-stat-label">Boutiques</div>
+            <div class="adm-stat-value">{{ number_format($stats['shops_total'], 0, ',', '.') }}</div>
+            <div class="adm-stat-sub">
+                <strong>{{ $stats['shops_active'] }}</strong> boutiques actives
             </div>
         </div>
 
@@ -70,126 +78,104 @@
                     <span class="material-symbols-outlined">inventory_2</span>
                 </div>
             </div>
-            <div class="adm-stat-label">Produits Listés</div>
+            <div class="adm-stat-label">Produits listés</div>
             <div class="adm-stat-value">{{ number_format($stats['products'], 0, ',', '.') }}</div>
             <div class="adm-stat-sub">
                 <strong>{{ $stats['pending_products'] }}</strong> en attente de revue
             </div>
         </div>
 
-    </div>
-
-    {{-- ── DISCUSSIONS + BLOG ── --}}
-    <div class="adm-grid-3-1">
-
-        {{-- Discussions --}}
-        <div class="adm-card">
-            <div class="adm-card-header">
-                <h2>Discussions Communautaires Actives</h2>
-                <a href="{{ route('admin.community') }}" class="adm-card-link">
-                    Voir tout <span class="material-symbols-outlined">arrow_forward</span>
-                </a>
-            </div>
-
-            @forelse($discussions as $disc)
-                <div class="adm-discussion-item">
-                    <div class="adm-disc-avatar">
-                        {{ strtoupper(substr($disc->auteur ?? 'U', 0, 2)) }}
-                    </div>
-                    <div class="adm-disc-content">
-                        <div class="adm-disc-title">{{ $disc->titre }}</div>
-                        <div class="adm-disc-excerpt">
-                            {{ \Illuminate\Support\Str::limit($disc->description ?? '', 80) }}
-                        </div>
-                        <div class="adm-disc-meta">
-                            <span class="adm-disc-stat">
-                                <span class="material-symbols-outlined">chat_bubble</span>
-                                {{ $disc->commentaires ?? 0 }} réponses
-                            </span>
-                            @if($disc->votes)
-                                <span class="adm-disc-stat">
-                                    <span class="material-symbols-outlined">favorite</span>
-                                    {{ $disc->votes }} likes
-                                </span>
-                            @endif
-                            @if(isset($disc->tag) && $disc->tag)
-                                <span class="adm-disc-badge-resolved">
-                                    <span class="material-symbols-outlined">label</span>
-                                    {{ $disc->tag }}
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <span class="adm-disc-time">
-                        {{ $disc->created_at ? strtoupper($disc->created_at->diffForHumans(null, true)) : '' }}
+        {{-- Commandes --}}
+        <div class="adm-stat-card">
+            <div class="adm-stat-card-top">
+                <div class="adm-stat-icon orange">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                @if($stats['orders_pending'] > 0)
+                    <span class="adm-stat-badge" style="background:#fff8e6;color:#d97706">
+                        {{ $stats['orders_pending'] }} en attente
                     </span>
-                </div>
-            @empty
-                <div style="padding:32px 20px;text-align:center;color:var(--adm-text3);font-size:13px;">
-                    <span class="material-symbols-outlined"
-                          style="font-size:36px;display:block;margin-bottom:8px;opacity:0.5">forum</span>
-                    Aucune discussion pour le moment.
-                </div>
-            @endforelse
-        </div>
-
-        {{-- Articles de Blog --}}
-        <div class="adm-card">
-            <div class="adm-card-header">
-                <h2>Nouveaux Articles de Blog</h2>
+                @endif
             </div>
-
-            @forelse($articles as $article)
-                <div class="adm-blog-item">
-                    @if($article->image)
-                        <img src="{{ $article->image }}" alt="{{ $article->titre }}" class="adm-blog-thumbnail">
-                    @else
-                        @php
-                            $isArtisan = str_contains(strtolower($article->categorie ?? ''), 'artisan');
-                            $bg = $isArtisan
-                                ? 'linear-gradient(135deg,#1B6B3A,#2E8B57)'
-                                : 'linear-gradient(135deg,#0f1b2d,#1a3050)';
-                            $ico = $isArtisan ? 'gallery_thumbnail' : 'phone_android';
-                        @endphp
-                        <div class="adm-blog-thumb-placeholder" style="background:{{ $bg }}">
-                            <span class="material-symbols-outlined">{{ $ico }}</span>
-                        </div>
-                    @endif
-                    <div class="adm-blog-info">
-                        <span class="adm-blog-tag">{{ $article->categorie ?? 'Général' }}</span>
-                        <div class="adm-blog-title">{{ $article->titre }}</div>
-                        <div class="adm-blog-author">
-                            Publié par {{ $article->auteur ?? 'l\'équipe' }}
-                            @if($article->read_time)
-                                • {{ $article->read_time }} min de lecture
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div style="padding:20px;text-align:center;color:var(--adm-text3);font-size:13px;">
-                    Aucun article récent.
-                </div>
-            @endforelse
-
-            <a href="{{ route('admin.blog.create') }}" class="adm-blog-add">
-                <span class="material-symbols-outlined">add_circle</span>
-                Rédiger un nouvel article
-            </a>
+            <div class="adm-stat-label">Commandes</div>
+            <div class="adm-stat-value">{{ number_format($stats['orders_total'], 0, ',', '.') }}</div>
+            <div class="adm-stat-sub">Total sur la plateforme</div>
         </div>
 
     </div>
 
-    {{-- ── TABLE VENDEURS ── --}}
+    {{-- ── MINI CHART + ACTIONS RAPIDES ── --}}
+    <div class="adm-grid-3-1" style="margin-bottom:20px">
+
+        {{-- Graphe simplifié --}}
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <div>
+                    <h2>Activité de la semaine</h2>
+                    <p>Volume des transactions sur 7 jours</p>
+                </div>
+                <div style="display:flex;gap:6px">
+                    @foreach(['7J','30J','1A'] as $p)
+                        <button style="padding:5px 12px;border-radius:20px;border:none;font-size:11px;font-weight:700;cursor:pointer;
+                            background:{{ $p==='7J'?'var(--adm-green)':'var(--adm-bg)' }};
+                            color:{{ $p==='7J'?'#fff':'var(--adm-text3)' }}">{{ $p }}</button>
+                    @endforeach
+                </div>
+            </div>
+            <div style="padding:20px">
+                <div class="adm-mini-chart" style="height:80px;gap:8px">
+                    @php $bars = [30,55,40,70,60,85,100]; @endphp
+                    @foreach($bars as $idx => $h)
+                        <div class="adm-mini-bar @if($idx===count($bars)-1) active @endif"
+                             style="height:{{ $h }}%;border-radius:6px;transition:height 0.3s"></div>
+                    @endforeach
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--adm-text3);font-weight:600">
+                    @foreach(['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'] as $j)
+                        <span>{{ $j }}</span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Actions rapides --}}
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <h2>Actions rapides</h2>
+            </div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:6px">
+                @foreach([
+                    ['route'=>'admin.sellers',   'icon'=>'storefront',  'label'=>'Gérer les vendeurs',    'color'=>'var(--adm-green)'],
+                    ['route'=>'admin.products',  'icon'=>'inventory_2', 'label'=>'Modérer les produits',  'color'=>'var(--adm-orange)'],
+                    ['route'=>'admin.orders',    'icon'=>'receipt_long','label'=>'Voir les commandes',     'color'=>'#7C3AED'],
+                    ['route'=>'admin.promotions','icon'=>'local_offer', 'label'=>'Gérer les promotions',  'color'=>'var(--adm-gold)'],
+                    ['route'=>'admin.users',     'icon'=>'group',       'label'=>'Gérer les utilisateurs','color'=>'var(--adm-text2)'],
+                ] as $action)
+                    <a href="{{ route($action['route']) }}"
+                       style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;transition:background 0.15s;color:var(--adm-text)"
+                       onmouseover="this.style.background='var(--adm-bg)'" onmouseout="this.style.background='transparent'">
+                        <div style="width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+                            background:{{ $action['color'] }}18;flex-shrink:0">
+                            <span class="material-symbols-outlined" style="font-size:18px;color:{{ $action['color'] }};
+                                font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">{{ $action['icon'] }}</span>
+                        </div>
+                        <span style="font-size:13px;font-weight:600">{{ $action['label'] }}</span>
+                        <span class="material-symbols-outlined" style="font-size:16px;color:var(--adm-text3);margin-left:auto">arrow_forward_ios</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- ── VENDEURS RÉCENTS ── --}}
     <div class="adm-card">
         <div class="adm-card-header">
             <div>
-                <h2>Demandes de Vendeurs Récents</h2>
-                <p>Vérifiez les documents pour approbation finale.</p>
+                <h2>Boutiques enregistrées</h2>
+                <p>Les dernières boutiques créées sur BéninMarket.</p>
             </div>
             <a href="{{ route('admin.sellers') }}" class="adm-card-link">
-                Gérer les approbations
-                <span class="material-symbols-outlined">open_in_new</span>
+                Voir tout <span class="material-symbols-outlined">open_in_new</span>
             </a>
         </div>
 
@@ -197,9 +183,10 @@
             <table class="adm-table">
                 <thead>
                     <tr>
+                        <th>Boutique</th>
                         <th>Vendeur</th>
                         <th>Localisation</th>
-                        <th>Date</th>
+                        <th>Date d'inscription</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
@@ -209,8 +196,10 @@
                         @php
                             $statusMap = [
                                 'pending'  => ['cls' => 'adm-badge-pending',  'lbl' => 'En attente'],
+                                'active'   => ['cls' => 'adm-badge-approved', 'lbl' => 'Actif'],
                                 'approved' => ['cls' => 'adm-badge-approved', 'lbl' => 'Approuvé'],
                                 'rejected' => ['cls' => 'adm-badge-rejected', 'lbl' => 'Rejeté'],
+                                'inactive' => ['cls' => 'adm-badge-rejected', 'lbl' => 'Inactif'],
                             ];
                             $st = $statusMap[$shop->status ?? 'pending'] ?? $statusMap['pending'];
                         @endphp
@@ -222,9 +211,12 @@
                                     </div>
                                     <div>
                                         <div class="adm-vendor-name">{{ $shop->name }}</div>
-                                        <div class="adm-vendor-owner">{{ $shop->user->name ?? '—' }}</div>
+                                        <div class="adm-vendor-owner">{{ $shop->slug }}</div>
                                     </div>
                                 </div>
+                            </td>
+                            <td style="color:var(--adm-text2);font-size:13px">
+                                {{ $shop->user->name ?? '—' }}
                             </td>
                             <td style="color:var(--adm-text2);font-size:13px">
                                 {{ $shop->location ?? '—' }}
@@ -244,15 +236,13 @@
                                        class="adm-icon-btn" title="Voir">
                                         <span class="material-symbols-outlined">visibility</span>
                                     </a>
-                                    <button class="adm-icon-btn" title="Options">
-                                        <span class="material-symbols-outlined">more_vert</span>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" style="text-align:center;padding:28px;color:var(--adm-text3);">
+                            <td colspan="6" style="text-align:center;padding:32px;color:var(--adm-text3);">
+                                <span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:8px;opacity:0.4">store_mall_directory</span>
                                 Aucune boutique enregistrée.
                             </td>
                         </tr>
@@ -261,5 +251,62 @@
             </table>
         </div>
     </div>
+
+    {{-- ── COMMANDES RÉCENTES ── --}}
+    @if(isset($recentOrders) && $recentOrders->count() > 0)
+    <div class="adm-card" style="margin-top:20px">
+        <div class="adm-card-header">
+            <div>
+                <h2>Commandes récentes</h2>
+                <p>Les 5 dernières commandes passées sur la plateforme.</p>
+            </div>
+            <a href="{{ route('admin.orders') }}" class="adm-card-link">
+                Voir tout <span class="material-symbols-outlined">open_in_new</span>
+            </a>
+        </div>
+        <div class="adm-table-wrap">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Articles</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($recentOrders as $order)
+                        @php
+                            $oMap = [
+                                'pending'    => ['cls'=>'adm-badge-pending',  'lbl'=>'En attente'],
+                                'en_attente' => ['cls'=>'adm-badge-pending',  'lbl'=>'En attente'],
+                                'payee'      => ['cls'=>'adm-badge-approved', 'lbl'=>'Payée'],
+                                'livree'     => ['cls'=>'adm-badge-approved', 'lbl'=>'Livrée'],
+                                'annulee'    => ['cls'=>'adm-badge-rejected', 'lbl'=>'Annulée'],
+                            ];
+                            $os = $oMap[$order->status ?? 'pending'] ?? $oMap['pending'];
+                        @endphp
+                        <tr>
+                            <td style="font-weight:700;font-size:12px;color:var(--adm-text3)">#{{ $order->id }}</td>
+                            <td style="font-weight:600;font-size:13px">{{ $order->user->name ?? '—' }}</td>
+                            <td style="color:var(--adm-text2);font-size:13px">{{ $order->items->count() }} article(s)</td>
+                            <td style="font-weight:700;font-size:13px;color:var(--adm-green)">
+                                {{ number_format($order->total_amount ?? $order->items->sum(fn($i)=>$i->unit_price*$i->quantity), 0, ',', '.') }} FCFA
+                            </td>
+                            <td>
+                                <span class="adm-badge {{ $os['cls'] }}">{{ $os['lbl'] }}</span>
+                            </td>
+                            <td style="color:var(--adm-text3);font-size:12px">
+                                {{ $order->created_at->format('d M Y') }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 
 @endsection

@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CartController;
-use App\Http\Controllers\Api\ForumTopicController;
+use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ShopController;
+use App\Http\Controllers\Api\VendorOrderController;
 use App\Models\Category;
 use App\Models\OrderItem;
+use App\Models\Promotion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -37,22 +37,13 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/shops', [ShopController::class, 'index']);
 Route::get('/shops/{slug}', [ShopController::class, 'show']);
 
-// Blog - Articles
-Route::get('/articles', [ArticleController::class, 'index']);
-Route::get('/articles/{id}', [ArticleController::class, 'show']);
+// Avis publics d'une boutique
+Route::get('/shops/{slug}/reviews', [ReviewController::class, 'indexByShop']);
 
-// Forum - Topics
-Route::get('/forum-topics', [ForumTopicController::class, 'index']);
-Route::get('/forum-topics/{topic}', [ForumTopicController::class, 'show']);
-
-// Password Reset
-Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
-
-// Promotions publiques
+// Promotions publiques (produits locaux mis en avant)
 Route::get('/promotions', function () {
     return response()->json(
-        \App\Models\Promotion::where('actif', true)
+        Promotion::where('actif', true)
             ->where('date_fin', '>=', now())
             ->orderBy('date_fin', 'asc')
             ->get()
@@ -93,8 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
             'shop' => $shop,
             'stats' => [
                 'products' => $shop->products()->count(),
-                'orders' => OrderItem::where('shop_id', $shop->id)->count(),
-                'revenue' => OrderItem::where('shop_id', $shop->id)
+                'orders'   => OrderItem::where('shop_id', $shop->id)->count(),
+                'revenue'  => OrderItem::where('shop_id', $shop->id)
                     ->join('orders', 'orders.id', '=', 'order_items.order_id')
                     ->where('orders.status', 'payee')
                     ->sum(DB::raw('unit_price * quantity')),
@@ -102,25 +93,25 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    // --- Commandes ---
+    // --- Commandes client ---
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/checkout', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 
-    // --- Forum (créer un sujet + voter) ---
-    Route::post('/forum-topics', [ForumTopicController::class, 'store']);
-    Route::post('/forum-topics/{forumTopic}/vote', [ForumTopicController::class, 'vote']);
+    // --- Commandes vendeur ---
+    Route::get('/vendor/orders', [VendorOrderController::class, 'index']);
+    Route::patch('/vendor/orders/{order}/status', [VendorOrderController::class, 'updateStatus']);
 
-    // --- Articles (créer/modifier - admin) ---
-    Route::post('/articles', [ArticleController::class, 'store']);
-    Route::put('/articles/{article}', [ArticleController::class, 'update']);
-    Route::delete('/articles/{article}', [ArticleController::class, 'destroy']);
+    // --- Messagerie vendeur ↔ client ---
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::get('/conversations/unread', [ConversationController::class, 'unreadCount']);
+    Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
+    Route::post('/conversations/{conversation}/reply', [ConversationController::class, 'reply']);
+    Route::post('/shops/{shopId}/message', [ConversationController::class, 'sendMessage']);
 
-    // --- Panier ---
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart/add', [CartController::class, 'add']);
-    Route::put('/cart/{cartItem}', [CartController::class, 'update']);
-    Route::delete('/cart/{cartItem}', [CartController::class, 'remove']);
-    Route::delete('/cart/clear', [CartController::class, 'clear']);
+    // --- Avis clients ---
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::get('/reviews/eligible-shops', [ReviewController::class, 'eligibleShops']);
+    Route::get('/shops/{shopId}/can-review', [ReviewController::class, 'canReview']);
 });
