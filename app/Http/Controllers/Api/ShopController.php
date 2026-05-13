@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ShopController extends Controller
 {
@@ -17,7 +18,6 @@ class ShopController extends Controller
         $query = Shop::where('status', 'active')
             ->withCount('products');
 
-        // Recherche textuelle
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(function ($q) use ($term) {
@@ -29,7 +29,6 @@ class ShopController extends Controller
 
         $query->latest();
 
-        // Limite optionnelle (pour recherche globale)
         if ($request->filled('limit')) {
             $query->limit((int) $request->limit);
         }
@@ -38,11 +37,12 @@ class ShopController extends Controller
     }
 
     /**
-     * Détail d'une boutique
+     * Détail d'une boutique (avec produits, utilisateur et stats)
      */
     public function show($slug)
     {
         $shop = Shop::with([
+            'user:id,name,email',
             'products' => fn ($q) => $q->where('status', 'publié')->latest(),
         ])
             ->where('slug', $slug)
@@ -52,41 +52,67 @@ class ShopController extends Controller
     }
 
     /**
-     * Création d'une nouvelle boutique (vendor setup)
+     * Création d'une nouvelle boutique
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
+            'location'    => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category'    => 'nullable|string|max:100',
+            'whatsapp'    => 'nullable|string|max:30',
+            'instagram'   => 'nullable|string|max:100',
+            'logo'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banner'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
         if ($request->user()->shop) {
             return response()->json(['message' => 'Vous avez déjà une boutique'], 409);
         }
 
+        // Générer un slug unique
         $slug = Str::slug($request->name);
         $original = $slug;
-        $counter = 1;
+        $counter  = 1;
         while (Shop::where('slug', $slug)->exists()) {
-            $slug = $original.'-'.$counter++;
+            $slug = $original . '-' . $counter++;
         }
 
+        // Upload logo
+        $logoUrl = null;
+        if ($request->hasFile('logo')) {
+            $path    = $request->file('logo')->store("shops/{$slug}", 'public');
+            $logoUrl = Storage::url($path);
+        }
+
+        // Upload bannière
+        $bannerUrl = null;
+        if ($request->hasFile('banner')) {
+            $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
+            $bannerUrl = Storage::url($path);
+        }
+
+        // Passer l'utilisateur en vendeur
         $request->user()->update(['role' => 'vendeur']);
 
         $shop = Shop::create([
-            'user_id' => $request->user()->id,
-            'name' => $request->name,
-            'slug' => $slug,
-            'location' => $request->location,
+            'user_id'     => $request->user()->id,
+            'name'        => $request->name,
+            'slug'        => $slug,
+            'location'    => $request->location,
             'description' => $request->description,
-            'status' => 'pending', // en attente validation admin
+            'category'    => $request->category,
+            'whatsapp'    => $request->whatsapp,
+            'instagram'   => $request->instagram,
+            'logo'        => $logoUrl,
+            'banner'      => $bannerUrl,
+            'status'      => 'active',
         ]);
 
         return response()->json([
             'message' => 'Boutique créée avec succès',
-            'shop' => $shop,
+            'shop'    => $shop,
         ], 201);
     }
 
@@ -100,18 +126,45 @@ class ShopController extends Controller
         }
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'name'        => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'location' => 'sometimes|string|max:255',
-            'logo' => 'nullable|string',
-            'banner' => 'nullable|string',
+            'location'    => 'sometimes|string|max:255',
+            'category'    => 'nullable|string|max:100',
+            'whatsapp'    => 'nullable|string|max:30',
+            'instagram'   => 'nullable|string|max:100',
+            'logo'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banner'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
-        $shop->update($request->only(['name', 'description', 'location', 'logo', 'banner']));
+        $data = $request->only(['name', 'description', 'location', 'category', 'whatsapp', 'instagram']);
+
+        // Upload logo si fichier envoyé
+        if ($request->hasFile('logo')) {
+            if ($shop->logo && Str::startsWith($shop->logo, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $shop->logo));
+            }
+            $path         = $request->file('logo')->store("shops/{$shop->slug}", 'public');
+            $data['logo'] = Storage::url($path);
+        } elseif ($request->filled('logo')) {
+            $data['logo'] = $request->logo;
+        }
+
+        // Upload bannière si fichier envoyé
+        if ($request->hasFile('banner')) {
+            if ($shop->banner && Str::startsWith($shop->banner, '/storage/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $shop->banner));
+            }
+            $path           = $request->file('banner')->store("shops/{$shop->slug}/banner", 'public');
+            $data['banner'] = Storage::url($path);
+        } elseif ($request->filled('banner')) {
+            $data['banner'] = $request->banner;
+        }
+
+        $shop->update($data);
 
         return response()->json([
             'message' => 'Boutique mise à jour',
-            'shop' => $shop->fresh(),
+            'shop'    => $shop->fresh(),
         ]);
     }
 }
