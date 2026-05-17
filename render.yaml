@@ -20,10 +20,26 @@ services:
           property: host
       - key: DB_CONNECTION
         value: pgsql
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: land-commerce-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: land-commerce-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: land-commerce-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: land-commerce-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: land-commerce-db
+          property: password
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_STORE
