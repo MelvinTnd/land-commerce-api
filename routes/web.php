@@ -17,6 +17,47 @@ Route::get('/', function () {
 });
 
 // ══════════════════════════════════════════════
+// SETUP TEMPORAIRE — Créer le compte admin prod
+// Appeler UNE SEULE FOIS puis supprimer cette route
+// URL : /setup-admin?token=BeninMarket2026!
+// ══════════════════════════════════════════════
+Route::get('/setup-admin', function () {
+    $secret = 'BeninMarket2026!';
+
+    if (request('token') !== $secret) {
+        abort(403, 'Token invalide.');
+    }
+
+    $email = 'admin@beninmarket.com';
+
+    $existing = \App\Models\User::where('email', $email)->first();
+    if ($existing) {
+        return response()->json([
+            'status'  => 'already_exists',
+            'message' => 'Le compte admin existe déjà.',
+            'email'   => $existing->email,
+            'role'    => $existing->role,
+        ]);
+    }
+
+    $admin = \App\Models\User::create([
+        'name'     => 'Admin BéninMarket',
+        'email'    => $email,
+        'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+        'role'     => 'admin',
+        'phone'    => '+22901000000',
+    ]);
+
+    return response()->json([
+        'status'   => 'created',
+        'message'  => 'Compte admin créé avec succès !',
+        'email'    => $admin->email,
+        'password' => 'admin123',
+        'login'    => url('/admin/login'),
+    ]);
+});
+
+// ══════════════════════════════════════════════
 // AUTH ADMIN — Connexion / Déconnexion
 // ══════════════════════════════════════════════
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
