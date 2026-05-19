@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Scripts locaux de debug/seed (non destinés à la production)
+check_db.php
+seed_local.php
+seed_out.txt
