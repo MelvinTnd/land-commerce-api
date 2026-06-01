@@ -100,21 +100,107 @@
   {{-- ── PAGE HEADER ── --}}
   <div class="adm-page-header">
     <div>
-      <h1>Seller Management</h1>
-      <p>Oversee and verify artisans and commercial shops across the Republic of Benin.<br>
-         Maintain marketplace integrity through proactive vetting.</p>
+      <h1>Gestion des Vendeurs</h1>
+      <p>Gérez et vérifiez les artisans et boutiques sur la plateforme BéninMarket.</p>
     </div>
     <div class="adm-header-actions">
-      <button class="adm-btn adm-btn-outline">
+      <button class="adm-btn adm-btn-outline" onclick="exportSellersCSV()">
         <span class="material-symbols-outlined">download</span>
-        Export Registry
+        Exporter
       </button>
-      <button class="adm-btn adm-btn-primary">
-        <span class="material-symbols-outlined">add</span>
-        Invite New Seller
+      <button class="adm-btn adm-btn-primary" onclick="openInviteModal()">
+        <span class="material-symbols-outlined">person_add</span>
+        Inviter un vendeur
       </button>
     </div>
   </div>
+
+  {{-- ── MODALE INVITATION VENDEUR ── --}}
+  <div id="invite-overlay"
+       style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.2s"
+       onclick="if(event.target===this)closeInviteModal()">
+    <div class="adm-modal-box"
+         style="background:#fff;border-radius:16px;padding:32px;max-width:460px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.2s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <div>
+          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Inviter un vendeur</h2>
+          <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Envoyer un lien d'inscription sécurisé</p>
+        </div>
+        <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom de la boutique</label>
+          <input id="inv-name" type="text" placeholder="Ex: Atelier Koffi" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Email du propriétaire *</label>
+          <input id="inv-email" type="email" placeholder="vendeur@example.com" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Message d'invitation (optionnel)</label>
+          <textarea id="inv-msg" rows="3" placeholder="Bonjour, nous vous invitons à rejoindre BéninMarket..." style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'"></textarea>
+        </div>
+        <div id="inv-link-box" style="display:none;background:var(--adm-green-soft);border-radius:8px;padding:12px;font-size:12.5px">
+          <div style="font-weight:700;color:var(--adm-green);margin-bottom:4px">✅ Lien d'inscription généré :</div>
+          <div id="inv-link" style="word-break:break-all;color:var(--adm-text2);font-family:monospace;font-size:11.5px"></div>
+          <button onclick="copyInviteLink()" style="margin-top:8px;padding:4px 12px;background:var(--adm-green);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier le lien</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
+        <button onclick="closeInviteModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
+        <button onclick="generateInviteLink()" class="adm-btn adm-btn-primary adm-btn-sm" id="inv-btn">
+          <span class="material-symbols-outlined" style="font-size:15px">send</span>
+          Générer le lien
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function openInviteModal() {
+    const o = document.getElementById('invite-overlay');
+    o.style.opacity = '1'; o.style.visibility = 'visible';
+    o.querySelector('.adm-modal-box').style.transform = 'scale(1)';
+  }
+  function closeInviteModal() {
+    const o = document.getElementById('invite-overlay');
+    o.style.opacity = '0'; o.style.visibility = 'hidden';
+    o.querySelector('.adm-modal-box').style.transform = 'scale(0.95)';
+    document.getElementById('inv-link-box').style.display = 'none';
+  }
+  function generateInviteLink() {
+    const email = document.getElementById('inv-email').value.trim();
+    if (!email || !email.includes('@')) {
+      showToast('Veuillez entrer un email valide.', 'error'); return;
+    }
+    const token = btoa(email + ':' + Date.now()).replace(/=/g,'');
+    const link = window.location.origin + '/inscription?ref=' + token + '&role=seller';
+    document.getElementById('inv-link').textContent = link;
+    document.getElementById('inv-link-box').style.display = 'block';
+    showToast('Lien d\'invitation généré avec succès !', 'success');
+  }
+  function copyInviteLink() {
+    const link = document.getElementById('inv-link').textContent;
+    navigator.clipboard.writeText(link).then(() => showToast('Lien copié !', 'success'));
+  }
+  function exportSellersCSV() {
+    const table = document.querySelector('.adm-table');
+    if (!table) return;
+    const rows = table.querySelectorAll('tr');
+    const lines = [];
+    rows.forEach(row => {
+      const cells = [...row.querySelectorAll('th,td')].slice(0,4);
+      lines.push(cells.map(c => '"' + (c.innerText||c.textContent).trim().replace(/\s+/g,' ').replace(/"/g,'""') + '"').join(','));
+    });
+    const blob = new Blob(['\uFEFF' + lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'vendeurs-beninmarket-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
+    showToast('Export CSV téléchargé !', 'success');
+  }
+  </script>
 
   {{-- ── FILTERS ── --}}
   <div class="adm-filter-bar">

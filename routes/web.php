@@ -89,6 +89,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // ── Commandes ────────────────────────────────
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders');
+    Route::get('/orders/export-pdf', [AdminOrderController::class, 'exportPdf'])->name('orders.pdf');
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
 

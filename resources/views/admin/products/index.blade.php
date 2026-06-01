@@ -112,21 +112,122 @@
   {{-- ── PAGE HEADER ── --}}
   <div class="adm-page-header">
     <div>
-      <h1>Global Catalog</h1>
-      <p>Oversee and moderate all products listed across the Aklunon ecosystem.<br>
-         Maintain quality standards and seller integrity.</p>
+      <h1>Catalogue Produits</h1>
+      <p>Modérez et gérez tous les produits listés sur BéninMarket.</p>
     </div>
     <div class="adm-header-actions">
-      <button class="adm-btn adm-btn-outline">
+      <button class="adm-btn adm-btn-outline" onclick="toggleFiltersPanel()">
         <span class="material-symbols-outlined">tune</span>
-        Advanced Filters
+        Filtres avancés
       </button>
-      <button class="adm-btn adm-btn-primary">
+      <button class="adm-btn adm-btn-primary" onclick="openNewListingModal()">
         <span class="material-symbols-outlined">add</span>
-        New Listing
+        Nouveau produit
       </button>
     </div>
   </div>
+
+  {{-- ── PANNEAU FILTRES AVANCÉS ── --}}
+  <div id="filters-panel" style="display:none;background:var(--adm-card);border:1px solid var(--adm-border);border-radius:12px;padding:20px;margin-bottom:20px;animation:fadeInUp 0.2s ease">
+    <form method="GET" action="{{ route('admin.products') }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Statut</label>
+          <select name="status" style="width:100%;padding:8px 12px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
+            <option value="">Tous</option>
+            <option value="approved" {{ request('status')=='approved'?'selected':'' }}>Approuvés</option>
+            <option value="pending"  {{ request('status')=='pending'?'selected':'' }}>En attente</option>
+            <option value="flagged"  {{ request('status')=='flagged'?'selected':'' }}>Signalés</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Prix min (CFA)</label>
+          <input type="number" name="price_min" value="{{ request('price_min') }}" placeholder="0" style="width:100%;padding:8px 12px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Prix max (CFA)</label>
+          <input type="number" name="price_max" value="{{ request('price_max') }}" placeholder="999999" style="width:100%;padding:8px 12px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Recherche</label>
+          <input type="text" name="search" value="{{ request('search') }}" placeholder="Nom du produit..." style="width:100%;padding:8px 12px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <a href="{{ route('admin.products') }}" class="adm-btn adm-btn-outline adm-btn-sm">Réinitialiser</a>
+        <button type="submit" class="adm-btn adm-btn-primary adm-btn-sm">
+          <span class="material-symbols-outlined" style="font-size:15px">search</span>
+          Appliquer
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {{-- ── MODALE NOUVEAU PRODUIT ── --}}
+  <div id="new-listing-overlay"
+       style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.2s"
+       onclick="if(event.target===this)closeNewListingModal()">
+    <div class="adm-modal-box"
+         style="background:#fff;border-radius:16px;padding:32px;max-width:520px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.2s;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <div>
+          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Ajouter un produit</h2>
+          <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Créer une nouvelle fiche produit dans le catalogue</p>
+        </div>
+        <button onclick="closeNewListingModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div style="background:var(--adm-green-soft);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--adm-green);display:flex;gap:10px;align-items:flex-start">
+        <span class="material-symbols-outlined" style="font-size:18px;flex-shrink:0;font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">info</span>
+        <span>Les vendeurs peuvent ajouter leurs propres produits depuis leur compte. Cette fonctionnalité d'ajout direct par l'admin sera disponible dans la prochaine version.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom du produit *</label>
+          <input type="text" placeholder="Ex: Masque Gèlèdè en bois" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Prix (CFA)</label>
+            <input type="number" placeholder="5000" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Stock</label>
+            <input type="number" placeholder="10" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+          </div>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Description</label>
+          <textarea rows="3" placeholder="Description du produit..." style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
+        <button onclick="closeNewListingModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
+        <button onclick="showToast('Fonctionnalité en cours de développement.','info');closeNewListingModal()" class="adm-btn adm-btn-primary adm-btn-sm">
+          <span class="material-symbols-outlined" style="font-size:15px">save</span>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function toggleFiltersPanel() {
+    const p = document.getElementById('filters-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  }
+  function openNewListingModal() {
+    const o = document.getElementById('new-listing-overlay');
+    o.style.opacity='1'; o.style.visibility='visible';
+    o.querySelector('.adm-modal-box').style.transform='scale(1)';
+  }
+  function closeNewListingModal() {
+    const o = document.getElementById('new-listing-overlay');
+    o.style.opacity='0'; o.style.visibility='hidden';
+    o.querySelector('.adm-modal-box').style.transform='scale(0.95)';
+  }
+  </script>
 
   {{-- ── MINI STAT CARDS ── --}}
   <div class="adm-mini-stats">

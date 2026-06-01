@@ -40,6 +40,27 @@
   .search-row input:focus { border-color:var(--adm-green); }
 
   @media(max-width:900px){ .orders-stats { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:560px){ .orders-stats { grid-template-columns:1fr 1fr; } }
+
+  /* Export dropdown */
+  .export-dropdown { position:relative; display:inline-flex; }
+  .export-menu {
+    position:absolute; top:calc(100% + 6px); right:0;
+    background:#fff; border:1px solid var(--adm-border); border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.12); min-width:180px; z-index:200;
+    overflow:hidden; display:none;
+    animation:fadeInUp 0.18s ease;
+  }
+  .export-menu.open { display:block; }
+  .export-menu a, .export-menu button {
+    display:flex; align-items:center; gap:10px;
+    padding:11px 16px; font-size:13px; font-weight:600;
+    color:var(--adm-text2); background:none; border:none; width:100%;
+    cursor:pointer; font-family:inherit; text-decoration:none; transition:background 0.14s;
+  }
+  .export-menu a:hover, .export-menu button:hover { background:var(--adm-bg); color:var(--adm-green); }
+  .export-menu .material-symbols-outlined { font-size:16px; }
+  .export-menu-sep { height:1px; background:var(--adm-border); margin:4px 0; }
 </style>
 @endsection
 
@@ -50,10 +71,30 @@
       <h1>Gestion des Commandes</h1>
       <p>Suivez et gérez toutes les commandes passées sur la plateforme BéninMarket.</p>
     </div>
-    <button class="adm-btn adm-btn-outline" onclick="exportTable()">
-      <span class="material-symbols-outlined">download</span>
-      Exporter CSV
-    </button>
+    <div class="adm-header-actions">
+      <div class="export-dropdown" id="export-dropdown">
+        <button class="adm-btn adm-btn-outline" onclick="toggleExportMenu(event)">
+          <span class="material-symbols-outlined">download</span>
+          Exporter
+          <span class="material-symbols-outlined" style="font-size:14px;margin-left:2px">expand_more</span>
+        </button>
+        <div class="export-menu" id="export-menu">
+          <button onclick="exportCSV()">
+            <span class="material-symbols-outlined">table_chart</span>
+            Exporter CSV
+          </button>
+          <div class="export-menu-sep"></div>
+          <a href="{{ route('admin.orders.pdf') }}{{ request('status') ? '?status='.request('status') : '' }}" target="_blank">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            Exporter PDF
+          </a>
+          <a href="{{ route('admin.orders.pdf') }}{{ request('status') ? '?status='.request('status').'&' : '?' }}autoprint=1" target="_blank">
+            <span class="material-symbols-outlined">print</span>
+            Imprimer
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
   {{-- STATS --}}
@@ -207,19 +248,34 @@
   </style>
 
   <script>
-  function exportTable() {
+  /* ─── EXPORT CSV ─────────────────────────── */
+  function exportCSV() {
     const rows = document.querySelectorAll('#orders-table tr');
-    let csv = [];
+    const lines = [];
     rows.forEach(row => {
-      const cells = [...row.querySelectorAll('th, td')].slice(0,6);
-      csv.push(cells.map(c => '"' + c.innerText.trim().replace(/\n/g,' ') + '"').join(','));
+      const cells = [...row.querySelectorAll('th, td')].slice(0, 6);
+      lines.push(cells.map(c => '"' + (c.innerText || c.textContent).trim().replace(/\s+/g,' ').replace(/"/g,'""') + '"').join(','));
     });
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const bom = '\uFEFF'; // UTF-8 BOM pour Excel
+    const blob = new Blob([bom + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'commandes-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.download = 'commandes-beninmarket-' + new Date().toISOString().split('T')[0] + '.csv';
     a.click();
+    closeExportMenu();
+    showToast('Export CSV téléchargé !', 'success');
   }
+
+  /* ─── EXPORT DROPDOWN ────────────────────── */
+  function toggleExportMenu(e) {
+    e.stopPropagation();
+    document.getElementById('export-menu').classList.toggle('open');
+  }
+  function closeExportMenu() {
+    document.getElementById('export-menu').classList.remove('open');
+  }
+  document.addEventListener('click', closeExportMenu);
+  document.getElementById('export-menu').addEventListener('click', e => e.stopPropagation());
   </script>
 
 @endsection

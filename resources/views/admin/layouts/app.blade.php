@@ -288,6 +288,25 @@
         .adm-vendor-owner { font-size:11.5px; color:var(--adm-text3); }
         .adm-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600; white-space:nowrap; }
         .adm-badge-category { background:var(--adm-bg); color:var(--adm-text2); border:1px solid var(--adm-border); font-size:11px; }
+
+        /* ── ACTIONS CELLS ── */
+        .adm-actions-cell { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+        .adm-icon-btn {
+            width:32px; height:32px; border-radius:8px;
+            display:flex; align-items:center; justify-content:center;
+            background:var(--adm-bg); border:1px solid var(--adm-border);
+            cursor:pointer; transition:all 0.15s; color:var(--adm-text2);
+            font-family:inherit;
+        }
+        .adm-icon-btn:hover { background:var(--adm-green-soft); border-color:var(--adm-green); color:var(--adm-green); }
+        .adm-icon-btn .material-symbols-outlined { font-size:16px; }
+
+        /* ── PAGINATION (global) ── */
+        .adm-page-btn { width:32px;height:32px;border-radius:8px;border:1px solid var(--adm-border);background:var(--adm-card);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--adm-text2);transition:all 0.15s;text-decoration:none; }
+        .adm-page-btn:hover { border-color:var(--adm-green);color:var(--adm-green); }
+        .adm-page-btn.active { background:var(--adm-green);border-color:var(--adm-green);color:#fff; }
+        .adm-page-btn .material-symbols-outlined { font-size:16px; }
+        .adm-pagination { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-top:1px solid var(--adm-border); font-size:12.5px; color:var(--adm-text3); }
         .adm-badge-pending  { background:var(--adm-orange-soft); color:var(--adm-orange); }
         .adm-badge-approved { background:var(--adm-green-soft);  color:var(--adm-green); }
         .adm-badge-rejected { background:var(--adm-red-soft);    color:var(--adm-red); }
@@ -307,10 +326,111 @@
         .adm-footer-links a:hover { color:var(--adm-green); }
         .adm-version { color:var(--adm-green); font-weight:600; }
 
-        /* ── RESPONSIVE ── */
+        /* ── RESPONSIVE MOBILE ── */
         @media(max-width:1100px) {
             .adm-grid-3-1 { grid-template-columns:1fr; }
             .adm-stat-card.featured { grid-column:span 1; }
+        }
+
+        /* ── Hamburger (visible seulement mobile) ── */
+        .adm-hamburger {
+            display: none;
+            background: none; border: none; cursor: pointer;
+            padding: 6px; border-radius: 8px;
+            align-items: center; justify-content: center;
+            color: var(--adm-text2); transition: background 0.15s;
+        }
+        .adm-hamburger:hover { background: var(--adm-bg); }
+        .adm-hamburger .material-symbols-outlined { font-size: 24px; }
+
+        /* ── Overlay sidebar mobile ── */
+        .adm-sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+            opacity: 0; transition: opacity 0.25s;
+        }
+        .adm-sidebar-overlay.open { opacity: 1; }
+
+        @media(max-width: 768px) {
+            /* Body en colonne pleine largeur */
+            body { display: block; }
+
+            /* Sidebar cachée par défaut, slide depuis la gauche */
+            .adm-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+                z-index: 200;
+                width: 220px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            }
+            .adm-sidebar.open {
+                transform: translateX(0);
+            }
+            .adm-sidebar-overlay { display: block; }
+
+            /* Main prend toute la largeur */
+            .adm-main { margin-left: 0; }
+
+            /* Header mobile */
+            .adm-header { padding: 0 16px; gap: 12px; }
+            .adm-hamburger { display: inline-flex; }
+            .adm-search { max-width: none; flex: 1; }
+            .adm-header-user { display: none; }
+
+            /* Content padding réduit */
+            .adm-content { padding: 16px; }
+
+            /* Page header empilé */
+            .adm-page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .adm-header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            .adm-header-actions .adm-btn {
+                flex: 1;
+                justify-content: center;
+                min-width: 120px;
+            }
+
+            /* Stats grids → 2 colonnes sur mobile */
+            .adm-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .adm-stat-card.featured { grid-column: span 1; }
+
+            /* Tableaux scrollables horizontalement */
+            .adm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .adm-table { min-width: 600px; }
+
+            /* Pagination */
+            .adm-pagination {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            /* Footer */
+            .adm-footer { flex-direction: column; gap: 8px; align-items: flex-start; }
+            .adm-footer-links { flex-wrap: wrap; gap: 12px; }
+
+            /* Modales plein écran mobile */
+            .adm-modal-box {
+                width: calc(100% - 24px) !important;
+                max-width: none !important;
+                margin: 0 12px !important;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        @media(max-width: 480px) {
+            .adm-stats-grid { grid-template-columns: 1fr 1fr; }
+            .adm-btn { padding: 8px 12px; font-size: 12px; }
+            .adm-page-header h1 { font-size: 20px; }
         }
 
         /* ── ANIMATIONS ── */
@@ -386,11 +506,17 @@
     <!-- ══ MAIN ══ -->
     <div class="adm-main">
 
+        <!-- Sidebar Overlay (mobile) -->
+        <div class="adm-sidebar-overlay" id="adm-overlay" onclick="closeSidebar()"></div>
+
         <!-- Header -->
         <header class="adm-header">
+            <button class="adm-hamburger" id="adm-hamburger" onclick="openSidebar()" aria-label="Menu">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
             <div class="adm-search">
                 <span class="material-symbols-outlined adm-search-icon">search</span>
-                <input type="text" placeholder="Rechercher des transactions, vendeurs ou articles...">
+                <input type="text" placeholder="Rechercher...">
             </div>
             <div class="adm-header-right">
                 <button class="adm-notif-btn" title="Notifications">
@@ -551,17 +677,52 @@
         }
     });
 
-    /* ─── ESCAPE KEY ────────────────────────── */
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeConfirm();
-    });
+    /* ─── ESCAPE KEY → géré dans le bloc SIDEBAR DRAWER ci-dessous ─ */
 
     /* ─── MATERIAL SYMBOLS FOUT FIX ─────────── */
     document.fonts.ready.then(() => {
         document.documentElement.classList.add('mso-loaded');
     });
-    // fallback: show after 1.5s even if font fails
     setTimeout(() => document.documentElement.classList.add('mso-loaded'), 400);
+
+    /* ─── SIDEBAR MOBILE DRAWER ─────────────── */
+    function openSidebar() {
+        document.querySelector('.adm-sidebar').classList.add('open');
+        document.getElementById('adm-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        document.querySelector('.adm-sidebar').classList.remove('open');
+        document.getElementById('adm-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    // Fermer sidebar quand on clique sur un lien nav (mobile)
+    document.querySelectorAll('.adm-nav-item').forEach(el =>
+        el.addEventListener('click', closeSidebar)
+    );
+    // Fermer avec Escape (unique listener)
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeConfirm(); closeSidebar(); }
+    });
+
+    /* ─── TOAST MOBILE: position bas sur petits écrans ─ */
+    function adjustToastPosition() {
+        const tc = document.getElementById('adm-toast-container');
+        if (!tc) return;
+        if (window.innerWidth <= 768) {
+            tc.style.top = 'auto';
+            tc.style.bottom = '20px';
+            tc.style.right = '12px';
+            tc.style.left = '12px';
+        } else {
+            tc.style.top = '20px';
+            tc.style.bottom = 'auto';
+            tc.style.right = '20px';
+            tc.style.left = 'auto';
+        }
+    }
+    adjustToastPosition();
+    window.addEventListener('resize', adjustToastPosition);
     </script>
 
 </body>
