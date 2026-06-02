@@ -20,53 +20,40 @@ class ConversationController extends Controller
         $user = $request->user();
         $shop = $user->shop;
 
-        if ($shop) {
-            // Vendeur : conversations reçues sur sa boutique
-            $conversations = Conversation::with([
-                    'customer:id,name,avatar',
-                    'lastMessage',
-                ])
-                ->withCount(['messages as unread' => function ($q) use ($user) {
-                    $q->where('sender_id', '!=', $user->id)->where('is_read', false);
-                }])
-                ->where('shop_id', $shop->id)
-                ->orderByDesc('last_message_at')
-                ->get()
-                ->map(function ($c) {
-                    return [
-                        'id'              => $c->id,
-                        'with'            => $c->customer,
-                        'lastMessage'     => $c->lastMessage,
-                        'unread'          => (int) $c->unread,
-                        'shop_id'         => $c->shop_id,
-                        'customer_id'     => $c->customer_id,
-                        'last_message_at' => $c->last_message_at,
-                    ];
-                });
-        } else {
-            // Client : ses conversations avec des boutiques
-            $conversations = Conversation::with([
-                    'shop:id,name,slug,logo',
-                    'lastMessage',
-                ])
-                ->withCount(['messages as unread' => function ($q) use ($user) {
-                    $q->where('sender_id', '!=', $user->id)->where('is_read', false);
-                }])
-                ->where('customer_id', $user->id)
-                ->orderByDesc('last_message_at')
-                ->get()
-                ->map(function ($c) {
-                    return [
-                        'id'              => $c->id,
-                        'with'            => $c->shop,
-                        'lastMessage'     => $c->lastMessage,
-                        'unread'          => (int) $c->unread,
-                        'shop_id'         => $c->shop_id,
-                        'customer_id'     => $c->customer_id,
-                        'last_message_at' => $c->last_message_at,
-                    ];
-                });
-        }
+        // On récupère toutes les conversations liées à l'utilisateur (en tant que client OU en tant que boutique)
+        $conversations = Conversation::with([
+                'customer:id,name,avatar',
+                'shop:id,name,slug,logo',
+                'lastMessage',
+            ])
+            ->withCount(['messages as unread' => function ($q) use ($user) {
+                $q->where('sender_id', '!=', $user->id)->where('is_read', false);
+            }])
+            ->where(function($q) use ($user, $shop) {
+                $q->where('customer_id', $user->id);
+                if ($shop) {
+                    $q->orWhere('shop_id', $shop->id);
+                }
+            })
+            ->orderByDesc('last_message_at')
+            ->get()
+            ->map(function ($c) use ($user, $shop) {
+                // Déterminer avec qui est la conversation
+                // Si je suis le client, l'interlocuteur est la boutique
+                // Si je suis la boutique, l'interlocuteur est le client
+                $isCustomerView = ($c->customer_id === $user->id);
+                
+                return [
+                    'id'              => $c->id,
+                    'with'            => $isCustomerView ? $c->shop : $c->customer,
+                    'is_vendor_view'  => !$isCustomerView,
+                    'lastMessage'     => $c->lastMessage,
+                    'unread'          => (int) $c->unread,
+                    'shop_id'         => $c->shop_id,
+                    'customer_id'     => $c->customer_id,
+                    'last_message_at' => $c->last_message_at,
+                ];
+            });
 
         $totalUnread = $conversations->sum('unread');
 
