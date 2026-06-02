@@ -71,6 +71,11 @@ Route::get('/deploy/seed-production-real-data-secret-99bf', function () {
         
         // 2. Seeding des données réelles
         \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\Seeders\AdminSeeder',
+            '--force' => true
+        ]);
+        
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
             '--class' => 'Database\Seeders\RealDataSeeder',
             '--force' => true
         ]);
