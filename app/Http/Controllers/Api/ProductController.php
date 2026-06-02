@@ -15,7 +15,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with(['shop:id,name,slug,location', 'category:id,name,slug,icon'])
-            ->where('status', 'publié');
+            ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant']);
 
         // Filtre par catégorie (slug)
         if ($request->filled('category')) {
@@ -73,7 +73,7 @@ class ProductController extends Controller
         $product = Product::with(['shop', 'category'])
             ->where('slug', $slugOrId)
             ->orWhere('id', is_numeric($slugOrId) ? $slugOrId : 0)
-            ->where('status', 'publié')
+            ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])
             ->firstOrFail();
 
         return response()->json($product);

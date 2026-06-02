@@ -43,9 +43,9 @@ class ShopController extends Controller
     {
         $shop = Shop::with([
             'user:id,name,email',
-            'products' => fn ($q) => $q->where('status', 'publié')->latest(),
+            'products' => fn ($q) => $q->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])->latest(),
         ])
-            ->where('slug', $slug)
+            ->where('slug', 'ILIKE', $slug)
             ->firstOrFail();
 
         return response()->json($shop);
