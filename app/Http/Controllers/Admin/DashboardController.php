@@ -24,7 +24,7 @@ class DashboardController extends Controller
             'products'         => Product::count(),
             'pending_products' => Product::where('status', 'pending')->count(),
             'orders_total'     => Order::count(),
-            'orders_pending'   => Order::whereIn('status', ['pending', 'en_attente'])->count(),
+            'orders_pending'   => Order::where('status', 'en_attente')->count(),
             'shops_total'      => Shop::count(),
             'shops_active'     => Shop::where('status', 'active')->count(),
         ];

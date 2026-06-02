@@ -80,4 +80,73 @@ class AuthController extends Controller
             'message' => 'Déconnexion réussie'
         ]);
     }
+
+    /**
+     * Mise à jour du profil
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profil mis à jour',
+            'user'    => $user->fresh(),
+        ]);
+    }
+
+    /**
+     * Changement de mot de passe
+     */
+    public function changePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password'     => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'Le mot de passe actuel est incorrect.'
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['new_password']),
+        ]);
+
+        return response()->json([
+            'message' => 'Mot de passe mis à jour avec succès',
+        ]);
+    }
+
+    /**
+     * Suppression du compte
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->shop) {
+            $user->shop->products()->delete();
+            $user->shop->delete();
+        }
+
+        $user->addresses()->delete();
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Compte supprimé avec succès',
+        ]);
+    }
 }

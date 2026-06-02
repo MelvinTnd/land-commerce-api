@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\OrderController;
@@ -56,8 +57,11 @@ Route::get('/promotions', function () {
 Route::middleware('auth:sanctum')->group(function () {
 
     // --- Auth ---
-    Route::get('/user', fn (Request $req) => $req->user());
+    Route::get('/user', fn (Request $req) => $req->user()->load('addresses'));
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/user', [AuthController::class, 'updateProfile']);
+    Route::post('/user/change-password', [AuthController::class, 'changePassword']);
+    Route::delete('/user', [AuthController::class, 'deleteAccount']);
 
     // --- Boutique vendeur ---
     Route::post('/shops', [ShopController::class, 'store']);
@@ -109,6 +113,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
     Route::post('/conversations/{conversation}/reply', [ConversationController::class, 'reply']);
     Route::post('/shops/{shopId}/message', [ConversationController::class, 'sendMessage']);
+
+    // --- Adresses utilisateur ---
+    Route::get('/addresses', [AddressController::class, 'index']);
+    Route::post('/addresses', [AddressController::class, 'store']);
+    Route::put('/addresses/{address}', [AddressController::class, 'update']);
+    Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 
     // --- Avis clients ---
     Route::post('/reviews', [ReviewController::class, 'store']);

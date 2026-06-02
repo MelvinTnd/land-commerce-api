@@ -278,15 +278,15 @@
                 </thead>
                 <tbody>
                     @foreach($recentOrders as $order)
-                        @php
-                            $oMap = [
-                                'pending'    => ['cls'=>'adm-badge-pending',  'lbl'=>'En attente'],
-                                'en_attente' => ['cls'=>'adm-badge-pending',  'lbl'=>'En attente'],
-                                'payee'      => ['cls'=>'adm-badge-approved', 'lbl'=>'Payée'],
-                                'livree'     => ['cls'=>'adm-badge-approved', 'lbl'=>'Livrée'],
-                                'annulee'    => ['cls'=>'adm-badge-rejected', 'lbl'=>'Annulée'],
-                            ];
-                            $os = $oMap[$order->status ?? 'pending'] ?? $oMap['pending'];
+                    @php
+                        $oMap = [
+                            'en_attente' => ['cls'=>'adm-badge-pending',  'lbl'=>'En attente'],
+                            'payee'      => ['cls'=>'adm-badge-approved', 'lbl'=>'Payée'],
+                            'en_livraison'=> ['cls'=>'adm-badge-approved', 'lbl'=>'En livraison'],
+                            'livree'     => ['cls'=>'adm-badge-approved', 'lbl'=>'Livrée'],
+                            'annulee'    => ['cls'=>'adm-badge-rejected', 'lbl'=>'Annulée'],
+                        ];
+                        $os = $oMap[$order->status ?? 'en_attente'] ?? $oMap['en_attente'];
                         @endphp
                         <tr>
                             <td style="font-weight:700;font-size:12px;color:var(--adm-text3)">#{{ $order->id }}</td>

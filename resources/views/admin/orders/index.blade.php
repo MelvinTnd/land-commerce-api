@@ -123,11 +123,11 @@
 
   {{-- STATUS TABS --}}
   <div class="status-tab-bar">
-    @foreach([''=>'Toutes','pending'=>'En attente','processing'=>'En traitement','shipped'=>'Expédiées','delivered'=>'Livrées','cancelled'=>'Annulées'] as $val => $label)
+    @foreach([''=>'Toutes','en_attente'=>'En attente','payee'=>'Payée','en_livraison'=>'En livraison','livree'=>'Livrées','annulee'=>'Annulées'] as $val => $label)
       <a href="{{ route('admin.orders', $val ? ['status'=>$val] : []) }}"
          class="s-tab {{ request('status')===$val ? 'active' : '' }}">
         {{ $label }}
-        @if($val === 'pending' && $stats['pending'] > 0)
+        @if($val === 'en_attente' && $stats['pending'] > 0)
           <span class="s-tab-badge">{{ $stats['pending'] }}</span>
         @endif
       </a>
@@ -178,10 +178,11 @@
               </td>
               <td>
                 @php
-                  $st = $order->status ?? 'pending';
-                  $stLabels = ['pending'=>'En attente','processing'=>'En traitement','shipped'=>'Expédiée','delivered'=>'Livrée','cancelled'=>'Annulée'];
+                  $st = $order->status ?? 'en_attente';
+                  $stLabels = ['en_attente'=>'En attente','payee'=>'Payée','en_livraison'=>'En livraison','livree'=>'Livrée','annulee'=>'Annulée'];
+                  $stClasses = ['en_attente'=>'status-pending','payee'=>'status-processing','en_livraison'=>'status-shipped','livree'=>'status-delivered','annulee'=>'status-cancelled'];
                 @endphp
-                <span class="order-status-pill status-{{ $st }}">
+                <span class="order-status-pill {{ $stClasses[$st] ?? 'status-pending' }}">
                   <span class="dot"></span>
                   {{ $stLabels[$st] ?? $st }}
                 </span>
@@ -195,7 +196,7 @@
                       class="quick-status-form">
                   @csrf @method('PATCH')
                   <select name="status" class="quick-status-select">
-                    @foreach(['pending'=>'En attente','processing'=>'En traitement','shipped'=>'Expédiée','delivered'=>'Livrée','cancelled'=>'Annulée'] as $v => $l)
+                    @foreach(['en_attente'=>'En attente','payee'=>'Payée','en_livraison'=>'En livraison','livree'=>'Livrée','annulee'=>'Annulée'] as $v => $l)
                       <option value="{{ $v }}" {{ $order->status===$v?'selected':'' }}>{{ $l }}</option>
                     @endforeach
                   </select>

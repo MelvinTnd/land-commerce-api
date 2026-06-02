@@ -175,9 +175,9 @@
             onchange="this.form.submit()"
             style="padding:9px 28px 9px 12px;border-radius:8px;border:1px solid var(--adm-border);background:var(--adm-card);font-size:13px;font-family:inherit;outline:none;">
       <option value="">Tous les rôles</option>
-      <option value="admin"  {{ request('role')=='admin'  ? 'selected':'' }}>Admins</option>
-      <option value="seller" {{ request('role')=='seller' ? 'selected':'' }}>Vendeurs</option>
-      <option value="buyer"  {{ request('role')=='buyer'  ? 'selected':'' }}>Acheteurs</option>
+      <option value="admin"    {{ request('role')=='admin'    ? 'selected':'' }}>Admins</option>
+      <option value="vendeur"  {{ request('role')=='vendeur'  ? 'selected':'' }}>Vendeurs</option>
+      <option value="acheteur" {{ request('role')=='acheteur' ? 'selected':'' }}>Acheteurs</option>
     </select>
     <button class="adm-btn adm-btn-outline adm-btn-sm">
       <span class="material-symbols-outlined">search</span>
@@ -214,9 +214,9 @@
               </td>
               <td>
                 @php
-                  $role = $user->role ?? ($user->shop ? 'seller' : 'buyer');
-                  $roleMap   = ['admin'=>'role-admin','seller'=>'role-seller','buyer'=>'role-buyer'];
-                  $roleLabel = ['admin'=>'Admin','seller'=>'Vendeur','buyer'=>'Acheteur'];
+                  $role = $user->role ?? 'acheteur';
+                  $roleMap   = ['admin'=>'role-admin','vendeur'=>'role-seller','acheteur'=>'role-buyer'];
+                  $roleLabel = ['admin'=>'Admin','vendeur'=>'Vendeur','acheteur'=>'Acheteur'];
                 @endphp
                 <span class="role-badge {{ $roleMap[$role] ?? 'role-buyer' }}">
                   {{ $roleLabel[$role] ?? 'Acheteur' }}

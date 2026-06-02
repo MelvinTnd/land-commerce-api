@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Shop::class);
     }
+
+    public function addresses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
 }

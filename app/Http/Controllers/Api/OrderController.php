@@ -47,7 +47,12 @@ class OrderController extends Controller
             'total_amount'     => 'required|numeric|min:1',
             'shipping_address' => 'required|string',
             'customer_phone'   => 'required|string',
+            'customer_name'    => 'nullable|string',
+            'customer_email'   => 'nullable|email',
             'payment_method'   => 'nullable|string',
+            'payment_phone'    => 'nullable|string',
+            'notes'            => 'nullable|string',
+            'address_id'       => 'nullable|exists:addresses,id',
             'items'            => 'required|array|min:1',
             'items.*.id'       => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -62,9 +67,11 @@ class OrderController extends Controller
             'total_amount'     => $validated['total_amount'],
             'shipping_address' => $validated['shipping_address'],
             'customer_phone'   => $validated['customer_phone'],
-            'customer_name'    => $user->name,
-            'customer_email'   => $user->email,
+            'customer_name'    => $validated['customer_name'] ?? $user->name,
+            'customer_email'   => $validated['customer_email'] ?? $user->email,
             'payment_method'   => $validated['payment_method'] ?? 'mobile_money',
+            'payment_ref'      => $validated['payment_phone'] ?? null,
+            'notes'            => $validated['notes'] ?? null,
             'status'           => 'payée', // En mode démo, on valide directement
         ]);
 
