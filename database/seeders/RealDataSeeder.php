@@ -61,6 +61,16 @@ class RealDataSeeder extends Seeder
             ],
         ];
 
+        // 2. CATÉGORIES
+        $cats = [
+            ['name' => 'Artisanat', 'slug' => 'artisanat', 'icon' => 'palette'],
+            ['name' => 'Mode & Textile', 'slug' => 'mode-textile', 'icon' => 'checkroom'],
+            ['name' => 'Alimentation & Épices', 'slug' => 'alimentation-epices', 'icon' => 'restaurant_menu'],
+        ];
+        foreach ($cats as $c) {
+            Category::updateOrCreate(['slug' => $c['slug']], $c);
+        }
+
         $artisanat = Category::where('slug', 'artisanat')->first();
         $mode = Category::where('slug', 'mode-textile')->first();
         $alim = Category::where('slug', 'alimentation-epices')->first();

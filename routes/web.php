@@ -58,6 +58,37 @@ Route::get('/setup-admin', function () {
 });
 
 // ══════════════════════════════════════════════
+// DEPLOYMENT — Migration & Seeding en production
+// URL : /deploy/seed-production-real-data-secret-99bf?token=Blackmaket2026!
+// ══════════════════════════════════════════════
+Route::get('/deploy/seed-production-real-data-secret-99bf', function () {
+    $secret = 'Blackmaket2026!';
+    if (request('token') !== $secret) abort(403);
+
+    try {
+        // 1. Migrations (force car production)
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+        
+        // 2. Seeding des données réelles
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\Seeders\RealDataSeeder',
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Base de données réinitialisée et boutiques réelles créées sur Render !',
+            'artisan_output' => \Illuminate\Support\Facades\Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// ══════════════════════════════════════════════
 // AUTH ADMIN — Connexion / Déconnexion
 // ══════════════════════════════════════════════
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
