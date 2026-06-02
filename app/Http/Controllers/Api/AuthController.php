@@ -70,6 +70,54 @@ class AuthController extends Controller
     }
 
     /**
+     * Callback après connexion Google côté frontend (NextAuth)
+     */
+    public function googleCallback(Request $request)
+    {
+        $validated = $request->validate([
+            'google_id'    => 'required|string',
+            'email'        => 'required|email',
+            'name'         => 'required|string|max:255',
+            'avatar'       => 'nullable|string',
+            'access_token' => 'nullable|string',
+        ]);
+
+        // Chercher un utilisateur existant par google_id ou email
+        $user = User::where('google_id', $validated['google_id'])
+            ->orWhere('email', $validated['email'])
+            ->first();
+
+        if ($user) {
+            // Lier le google_id si pas déjà fait
+            if (!$user->google_id) {
+                $user->update(['google_id' => $validated['google_id']]);
+            }
+            if ($validated['avatar'] && !$user->avatar) {
+                $user->update(['avatar' => $validated['avatar']]);
+            }
+        } else {
+            // Créer un nouvel utilisateur
+            $user = User::create([
+                'name'      => $validated['name'],
+                'email'     => $validated['email'],
+                'google_id' => $validated['google_id'],
+                'avatar'    => $validated['avatar'],
+                'password'  => bcrypt(Str::random(32)),
+                'role'      => 'acheteur',
+            ]);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message'      => 'Connexion Google réussie',
+            'access_token' => $token,
+            'token_type'   => 'Bearer',
+            'user'         => $user,
+        ]);
+    }
+
+    /**
      * Déconnexion sécurisée (révoque le token)
      */
     public function logout(Request $request)
