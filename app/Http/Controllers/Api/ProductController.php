@@ -192,7 +192,7 @@ class ProductController extends Controller
         ]);
 
         $path = $request->file('image')->store('products', 'public');
-        $url = asset('storage/'.$path);
+        $url = \Illuminate\Support\Facades\Storage::url($path);
 
         return response()->json(['url' => $url]);
     }
