@@ -471,6 +471,8 @@
                 ['route'=>'admin.products',     'label'=>'Produits',     'icon'=>'inventory_2'],
                 ['route'=>'admin.orders',       'label'=>'Commandes',    'icon'=>'receipt_long'],
                 ['route'=>'admin.promotions',   'label'=>'Promotions',   'icon'=>'local_offer'],
+                ['route'=>'admin.blog',         'label'=>'Blog',         'icon'=>'article'],
+                ['route'=>'admin.community',     'label'=>'Communauté',  'icon'=>'forum'],
                 ['route'=>'admin.users',        'label'=>'Utilisateurs', 'icon'=>'group'],
                 ['route'=>'admin.settings',     'label'=>'Paramètres',   'icon'=>'settings'],
             ] as $item)

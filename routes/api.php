@@ -84,15 +84,22 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         }
 
+        $pendingCount = OrderItem::where('shop_id', $shop->id)
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->whereIn('orders.status', ['payee', 'en_attente'])
+            ->distinct('orders.id')
+            ->count('orders.id');
+
         return response()->json([
             'shop' => $shop,
             'stats' => [
-                'products' => $shop->products()->count(),
-                'orders'   => OrderItem::where('shop_id', $shop->id)->count(),
-                'revenue'  => OrderItem::where('shop_id', $shop->id)
+                'products'      => $shop->products()->count(),
+                'orders'        => OrderItem::where('shop_id', $shop->id)->count(),
+                'revenue'       => OrderItem::where('shop_id', $shop->id)
                     ->join('orders', 'orders.id', '=', 'order_items.order_id')
                     ->where('orders.status', 'payee')
                     ->sum(DB::raw('unit_price * quantity')),
+                'pendingOrders' => $pendingCount,
             ],
         ]);
     });
