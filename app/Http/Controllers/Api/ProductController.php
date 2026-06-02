@@ -32,9 +32,14 @@ class ProductController extends Controller
             $query->where('is_featured', true);
         }
 
-        // Recherche textuelle
+        // Recherche textuelle multichamps
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('description', 'like', "%{$s}%")
+                  ->orWhereHas('shop', fn($sq) => $sq->where('location', 'like', "%{$s}%"));
+            });
         }
 
         // Filtre prix max
