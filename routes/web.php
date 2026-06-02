@@ -185,5 +185,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/sellers', [SellerController::class, 'store'])->name('sellers.store');
 
     // ── Paramètres ────────────────────────────────
-    Route::get('/settings', fn () => view('admin.settings'))->name('settings');
+    Route::get('/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('settings');
+    Route::post('/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('settings.update');
 });
