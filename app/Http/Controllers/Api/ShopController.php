@@ -125,16 +125,28 @@ class ShopController extends Controller
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
-        $request->validate([
+        $rules = [
             'name'        => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'location'    => 'sometimes|string|max:255',
             'category'    => 'nullable|string|max:100',
             'whatsapp'    => 'nullable|string|max:30',
             'instagram'   => 'nullable|string|max:100',
-            'logo'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'banner'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
-        ]);
+        ];
+
+        if ($request->hasFile('logo')) {
+            $rules['logo'] = 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048';
+        } else {
+            $rules['logo'] = 'nullable|string';
+        }
+
+        if ($request->hasFile('banner')) {
+            $rules['banner'] = 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096';
+        } else {
+            $rules['banner'] = 'nullable|string';
+        }
+
+        $request->validate($rules);
 
         $data = $request->only(['name', 'description', 'location', 'category', 'whatsapp', 'instagram']);
 
