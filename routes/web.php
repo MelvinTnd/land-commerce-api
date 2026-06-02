@@ -117,8 +117,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // ── Utilisateurs ─────────────────────────────
     Route::get('/users', [AdminUserController::class, 'index'])->name('users');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{id}/toggle', [AdminUserController::class, 'toggleStatus'])->name('users.toggle');
+
+    // ── Vendeurs (Boutiques) ──────────────────────
+    Route::get('/sellers', [SellerController::class, 'index'])->name('sellers');
+    Route::post('/sellers', [SellerController::class, 'store'])->name('sellers.store');
+    Route::get('/sellers/{id}', [SellerController::class, 'show'])->name('sellers.show');
+    Route::post('/sellers/{id}/approve', [SellerController::class, 'approve'])->name('sellers.approve');
+    Route::post('/sellers/{id}/reject', [SellerController::class, 'reject'])->name('sellers.reject');
 
     // ── Paramètres ────────────────────────────────
     Route::get('/settings', fn () => view('admin.settings'))->name('settings');

@@ -65,7 +65,7 @@ class OrderController extends Controller
             'customer_name'    => $user->name,
             'customer_email'   => $user->email,
             'payment_method'   => $validated['payment_method'] ?? 'mobile_money',
-            'status'           => 'en_attente',
+            'status'           => 'payée', // En mode démo, on valide directement
         ]);
 
         foreach ($validated['items'] as $item) {

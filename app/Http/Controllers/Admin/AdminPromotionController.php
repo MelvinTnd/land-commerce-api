@@ -29,15 +29,20 @@ class AdminPromotionController extends Controller
             'reduction'   => 'required|numeric|min:1|max:100',
             'date_debut'  => 'nullable|date',
             'date_fin'    => 'required|date',
-            'image'       => 'nullable|url',
+            'image_file'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'categorie'   => 'nullable|string',
             'actif'       => 'boolean',
         ]);
 
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('promotions', 'public');
+            $data['image'] = asset('storage/' . $path);
+        }
+
         $data['actif'] = $request->boolean('actif', true);
         Promotion::create($data);
 
-        return back()->with('success', "🎉 Promotion « {$data['titre']} » créée avec succès — visible sur le frontend.");
+        return back()->with('success', "🎉 Promotion « {$data['titre']} » créée avec succès.");
     }
 
     public function update(Request $request, $id)
@@ -48,10 +53,16 @@ class AdminPromotionController extends Controller
             'description' => 'nullable|string',
             'reduction'   => 'required|numeric|min:1|max:100',
             'date_fin'    => 'required|date',
-            'image'       => 'nullable|url',
+            'image_file'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'categorie'   => 'nullable|string',
             'actif'       => 'boolean',
         ]);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('promotions', 'public');
+            $data['image'] = asset('storage/' . $path);
+        }
+
         $data['actif'] = $request->boolean('actif');
         $promo->update($data);
 

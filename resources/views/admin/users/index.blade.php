@@ -45,85 +45,73 @@
         <span class="material-symbols-outlined">download</span>
         Exporter
       </button>
-      <button class="adm-btn adm-btn-primary" onclick="openUserInviteModal()">
+      <button class="adm-btn adm-btn-primary" onclick="openUserAddModal()">
         <span class="material-symbols-outlined">person_add</span>
-        Inviter un utilisateur
+        Ajouter un utilisateur
       </button>
     </div>
   </div>
 
-  {{-- MODALE INVITATION UTILISATEUR --}}
-  <div id="user-invite-overlay"
+  {{-- MODALE AJOUT UTILISATEUR --}}
+  <div id="user-add-overlay"
        style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.2s"
-       onclick="if(event.target===this)closeUserInviteModal()">
+       onclick="if(event.target===this)closeUserAddModal()">
     <div class="adm-modal-box"
          style="background:#fff;border-radius:16px;padding:32px;max-width:460px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.2s">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-        <div>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Inviter un utilisateur</h2>
-          <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Générer un lien d'inscription sécurisé</p>
+      <form action="{{ route('admin.users.store') }}" method="POST">
+        @csrf
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div>
+            <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Nouvel Utilisateur</h2>
+            <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Créer un compte directement</p>
+          </div>
+          <button type="button" onclick="closeUserAddModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <button onclick="closeUserInviteModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom complet</label>
-          <input id="usr-name" type="text" placeholder="Ex: Kofi Mensah" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom complet</label>
+            <input name="name" type="text" placeholder="Ex: Jean Dupont" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Email *</label>
+            <input name="email" type="email" placeholder="utilisateur@example.com" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Mot de passe</label>
+            <input name="password" type="password" placeholder="••••••••" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Rôle</label>
+            <select name="role" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
+              <option value="acheteur">Acheteur</option>
+              <option value="vendeur">Vendeur</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Email *</label>
-          <input id="usr-email" type="email" placeholder="utilisateur@example.com" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
+          <button type="button" onclick="closeUserAddModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
+          <button type="submit" class="adm-btn adm-btn-primary adm-btn-sm">
+            <span class="material-symbols-outlined" style="font-size:15px">person_add</span>
+            Créer le compte
+          </button>
         </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Rôle</label>
-          <select id="usr-role" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:var(--adm-bg)">
-            <option value="buyer">Acheteur</option>
-            <option value="seller">Vendeur</option>
-          </select>
-        </div>
-        <div id="usr-link-box" style="display:none;background:var(--adm-green-soft);border-radius:8px;padding:12px;font-size:12.5px">
-          <div style="font-weight:700;color:var(--adm-green);margin-bottom:4px">✅ Lien d'invitation généré :</div>
-          <div id="usr-link" style="word-break:break-all;color:var(--adm-text2);font-family:monospace;font-size:11.5px"></div>
-          <button onclick="copyUserLink()" style="margin-top:8px;padding:4px 12px;background:var(--adm-green);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier le lien</button>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
-        <button onclick="closeUserInviteModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
-        <button onclick="generateUserLink()" class="adm-btn adm-btn-primary adm-btn-sm">
-          <span class="material-symbols-outlined" style="font-size:15px">send</span>
-          Générer le lien
-        </button>
-      </div>
+      </form>
     </div>
   </div>
 
   <script>
-  function openUserInviteModal() {
-    const o = document.getElementById('user-invite-overlay');
+  function openUserAddModal() {
+    const o = document.getElementById('user-add-overlay');
     o.style.opacity='1'; o.style.visibility='visible';
     o.querySelector('.adm-modal-box').style.transform='scale(1)';
   }
-  function closeUserInviteModal() {
-    const o = document.getElementById('user-invite-overlay');
+  function closeUserAddModal() {
+    const o = document.getElementById('user-add-overlay');
     o.style.opacity='0'; o.style.visibility='hidden';
     o.querySelector('.adm-modal-box').style.transform='scale(0.95)';
-    document.getElementById('usr-link-box').style.display='none';
-  }
-  function generateUserLink() {
-    const email = document.getElementById('usr-email').value.trim();
-    const role  = document.getElementById('usr-role').value;
-    if (!email || !email.includes('@')) { showToast('Email invalide.','error'); return; }
-    const token = btoa(email+':'+Date.now()).replace(/=/g,'');
-    const link  = window.location.origin+'/inscription?ref='+token+'&role='+role;
-    document.getElementById('usr-link').textContent = link;
-    document.getElementById('usr-link-box').style.display='block';
-    showToast('Lien d\'invitation généré !','success');
-  }
-  function copyUserLink() {
-    navigator.clipboard.writeText(document.getElementById('usr-link').textContent)
-      .then(()=>showToast('Lien copié !','success'));
   }
   function exportUsersCSV() {
     const table = document.querySelector('.adm-table');

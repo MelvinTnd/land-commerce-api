@@ -202,11 +202,7 @@
     <div class="adm-modal">
       <div class="adm-modal-header">
         <h3>Nouvelle Promotion</h3>
-        <button class="adm-modal-close" onclick="closeModal('add-promo-modal')">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <form method="POST" action="{{ route('admin.promotions.store') }}">
+            <form method="POST" action="{{ route('admin.promotions.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="adm-modal-body">
           <div class="form-row">
@@ -240,8 +236,9 @@
               <input type="date" name="date_fin" class="form-input" required>
             </div>
             <div class="form-group full">
-              <label class="form-label">Image de couverture (URL)</label>
-              <input type="url" name="image" class="form-input" placeholder="https://...">
+              <label class="form-label">Image de couverture (Fichier)</label>
+              <input type="file" name="image_file" class="form-input" accept="image/*">
+              <p style="font-size:10px;color:var(--adm-text3);margin-top:4px">Format recommandé: 800x400px, max 2Mo</p>
             </div>
             <div class="form-group full">
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;background:var(--adm-bg)">
@@ -271,7 +268,7 @@
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      <form method="POST" id="edit-promo-form">
+      <form method="POST" id="edit-promo-form" enctype="multipart/form-data">
         @csrf @method('PUT')
         <div class="adm-modal-body">
           <div class="form-row">
@@ -295,9 +292,9 @@
               <label class="form-label">Date de fin *</label>
               <input type="date" name="date_fin" id="edit-date-fin" class="form-input" required>
             </div>
-            <div class="form-group">
-              <label class="form-label">Image (URL)</label>
-              <input type="url" name="image" id="edit-image" class="form-input" placeholder="https://...">
+            <div class="form-group full">
+              <label class="form-label">Changer l'image (Fichier)</label>
+              <input type="file" name="image_file" class="form-input" accept="image/*">
             </div>
             <div class="form-group full">
               <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;background:var(--adm-bg)">

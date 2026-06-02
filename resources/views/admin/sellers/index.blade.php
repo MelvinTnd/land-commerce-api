@@ -108,83 +108,77 @@
         <span class="material-symbols-outlined">download</span>
         Exporter
       </button>
-      <button class="adm-btn adm-btn-primary" onclick="openInviteModal()">
+      <button class="adm-btn adm-btn-primary" onclick="openSellerAddModal()">
         <span class="material-symbols-outlined">person_add</span>
-        Inviter un vendeur
+        Ajouter un vendeur
       </button>
     </div>
   </div>
 
-  {{-- ── MODALE INVITATION VENDEUR ── --}}
-  <div id="invite-overlay"
+  {{-- MODALE AJOUT VENDEUR --}}
+  <div id="seller-add-overlay"
        style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.2s"
-       onclick="if(event.target===this)closeInviteModal()">
+       onclick="if(event.target===this)closeSellerAddModal()">
     <div class="adm-modal-box"
-         style="background:#fff;border-radius:16px;padding:32px;max-width:460px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.2s">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-        <div>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Inviter un vendeur</h2>
-          <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Envoyer un lien d'inscription sécurisé</p>
+         style="background:#fff;border-radius:16px;padding:32px;max-width:520px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,0.2);transform:scale(0.95);transition:transform 0.2s;max-height:90vh;overflow-y:auto">
+      <form action="{{ route('admin.sellers.store') }}" method="POST">
+        @csrf
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div>
+            <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700">Nouveau Vendeur</h2>
+            <p style="font-size:13px;color:var(--adm-text3);margin-top:2px">Créer un compte et une boutique</p>
+          </div>
+          <button type="button" onclick="closeSellerAddModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <button onclick="closeInviteModal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--adm-text3)">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom de la boutique</label>
-          <input id="inv-name" type="text" placeholder="Ex: Atelier Koffi" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="grid-column:span 2">
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom du propriétaire</label>
+            <input name="name" type="text" placeholder="Ex: Jean Koffi" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Email *</label>
+            <input name="email" type="email" placeholder="koffi@example.com" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Mot de passe</label>
+            <input name="password" type="password" placeholder="••••••••" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div style="grid-column:span 2;margin-top:4px;padding-top:14px;border-top:1px solid var(--adm-border)">
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Nom de la boutique</label>
+            <input name="shop_name" type="text" placeholder="Ex: Tissage d'Or" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div style="grid-column:span 2">
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Localisation (Ville)</label>
+            <input name="location" type="text" placeholder="Ex: Cotonou, Akpakpa" required style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+          </div>
+          <div style="grid-column:span 2">
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Description (optionnel)</label>
+            <textarea name="description" rows="2" placeholder="Brève présentation de la boutique..." style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:none;"></textarea>
+          </div>
         </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Email du propriétaire *</label>
-          <input id="inv-email" type="email" placeholder="vendeur@example.com" style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'">
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
+          <button type="button" onclick="closeSellerAddModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
+          <button type="submit" class="adm-btn adm-btn-primary adm-btn-sm">
+            <span class="material-symbols-outlined" style="font-size:15px">store</span>
+            Créer le vendeur
+          </button>
         </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--adm-text3);margin-bottom:6px">Message d'invitation (optionnel)</label>
-          <textarea id="inv-msg" rows="3" placeholder="Bonjour, nous vous invitons à rejoindre BéninMarket..." style="width:100%;padding:10px 14px;border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:vertical;transition:border 0.15s" onfocus="this.style.borderColor='var(--adm-green)'" onblur="this.style.borderColor='var(--adm-border)'"></textarea>
-        </div>
-        <div id="inv-link-box" style="display:none;background:var(--adm-green-soft);border-radius:8px;padding:12px;font-size:12.5px">
-          <div style="font-weight:700;color:var(--adm-green);margin-bottom:4px">✅ Lien d'inscription généré :</div>
-          <div id="inv-link" style="word-break:break-all;color:var(--adm-text2);font-family:monospace;font-size:11.5px"></div>
-          <button onclick="copyInviteLink()" style="margin-top:8px;padding:4px 12px;background:var(--adm-green);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Copier le lien</button>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:24px">
-        <button onclick="closeInviteModal()" class="adm-btn adm-btn-outline adm-btn-sm">Annuler</button>
-        <button onclick="generateInviteLink()" class="adm-btn adm-btn-primary adm-btn-sm" id="inv-btn">
-          <span class="material-symbols-outlined" style="font-size:15px">send</span>
-          Générer le lien
-        </button>
-      </div>
+      </form>
     </div>
   </div>
 
   <script>
-  function openInviteModal() {
-    const o = document.getElementById('invite-overlay');
+  function openSellerAddModal() {
+    const o = document.getElementById('seller-add-overlay');
     o.style.opacity = '1'; o.style.visibility = 'visible';
     o.querySelector('.adm-modal-box').style.transform = 'scale(1)';
   }
-  function closeInviteModal() {
-    const o = document.getElementById('invite-overlay');
+  function closeSellerAddModal() {
+    const o = document.getElementById('seller-add-overlay');
     o.style.opacity = '0'; o.style.visibility = 'hidden';
     o.querySelector('.adm-modal-box').style.transform = 'scale(0.95)';
-    document.getElementById('inv-link-box').style.display = 'none';
-  }
-  function generateInviteLink() {
-    const email = document.getElementById('inv-email').value.trim();
-    if (!email || !email.includes('@')) {
-      showToast('Veuillez entrer un email valide.', 'error'); return;
-    }
-    const token = btoa(email + ':' + Date.now()).replace(/=/g,'');
-    const link = window.location.origin + '/inscription?ref=' + token + '&role=seller';
-    document.getElementById('inv-link').textContent = link;
-    document.getElementById('inv-link-box').style.display = 'block';
-    showToast('Lien d\'invitation généré avec succès !', 'success');
-  }
-  function copyInviteLink() {
-    const link = document.getElementById('inv-link').textContent;
-    navigator.clipboard.writeText(link).then(() => showToast('Lien copié !', 'success'));
   }
   function exportSellersCSV() {
     const table = document.querySelector('.adm-table');
@@ -197,7 +191,7 @@
     });
     const blob = new Blob(['\uFEFF' + lines.join('\n')], {type:'text/csv;charset=utf-8;'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'vendeurs-beninmarket-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
+    a.download = 'vendeurs-blackmaket-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
     showToast('Export CSV téléchargé !', 'success');
   }
   </script>
