@@ -110,7 +110,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'stock'       => 'integer|min:0',
-            'image'       => 'nullable|string',   // URL ou base64
+            'image'       => 'nullable', // Peut être un fichier ou une chaîne (URL)
         ]);
 
         $shop = $request->user()->shop;
@@ -125,8 +125,16 @@ class ProductController extends Controller
             $slug = $original.'-'.$i++;
         }
 
+        $data = $validated;
+        
+        // Gérer l'upload de l'image si c'est un fichier
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+        }
+
         $product = $shop->products()->create([
-            ...$validated,
+            ...$data,
             'slug'   => $slug,
             'stock'  => $validated['stock'] ?? 0,
             'status' => 'publié',  // publié directement pour les vendeurs
@@ -156,10 +164,24 @@ class ProductController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'stock' => 'integer|min:0',
             'status' => 'sometimes|in:brouillon,publié',
-            'image' => 'nullable|string',
+            'image' => 'nullable',
         ]);
 
-        $product->update($validated);
+        $data = $validated;
+
+        // Gérer l'upload si c'est un fichier
+        if ($request->hasFile('image')) {
+            // Optionnel : supprimer l'ancienne image
+            if ($product->image && \Illuminate\Support\Str::contains($product->image, 'storage/products')) {
+                $oldPath = str_replace(\Illuminate\Support\Facades\Storage::url(''), '', $product->image);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+            
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+        }
+
+        $product->update($data);
 
         return response()->json([
             'message' => 'Produit mis à jour',
