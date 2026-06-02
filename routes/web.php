@@ -58,6 +58,30 @@ Route::get('/setup-admin', function () {
 });
 
 // ══════════════════════════════════════════════
+// MIGRATION — Appliquer les nouvelles migrations uniquement
+// URL : /run-migrations?token=BeninMarket2026!
+// ══════════════════════════════════════════════
+Route::get('/run-migrations', function () {
+    if (request('token') !== 'BeninMarket2026!') {
+        abort(403, 'Token invalide.');
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Migrations appliquées avec succès !',
+            'output'  => \Illuminate\Support\Facades\Artisan::output(),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// ══════════════════════════════════════════════
 // DEPLOYMENT — Migration & Seeding en production
 // URL : /deploy/seed-production-real-data-secret-99bf?token=Blackmaket2026!
 // ══════════════════════════════════════════════
