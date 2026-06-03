@@ -5,49 +5,74 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    /**
-     * Catalogue public avec filtres
-     */
+    private const PUBLIC_STATUSES = ['publié', 'publie', 'active', 'mis_en_avant'];
+
+    private function cloudinaryConfigured(): bool
+    {
+        return (bool) config('cloudinary.cloud_url');
+    }
+
+    private function storeProductImage(UploadedFile $image, string $folder = 'blackmaket/products'): string
+    {
+        if ($this->cloudinaryConfigured()) {
+            try {
+                return \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $image->getRealPath(),
+                    [
+                        'folder' => $folder,
+                        'resource_type' => 'image',
+                        'quality' => 'auto',
+                        'fetch_format' => 'auto',
+                    ]
+                )->getSecurePath();
+            } catch (\Throwable $e) {
+                Log::warning('Cloudinary upload failed, falling back to local storage.', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $path = $image->store('products', 'public');
+        return Storage::url($path);
+    }
+
     public function index(Request $request)
     {
         $query = Product::with(['shop:id,name,slug,location', 'category:id,name,slug,icon'])
-            ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant']);
+            ->whereIn('status', self::PUBLIC_STATUSES);
 
-        // Filtre par catégorie (slug)
         if ($request->filled('category')) {
             $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
         }
 
-        // Filtre par boutique (slug)
         if ($request->filled('shop')) {
             $query->whereHas('shop', fn ($q) => $q->where('slug', $request->shop));
         }
 
-        // Filtre produits à la une
         if ($request->boolean('featured')) {
             $query->where('is_featured', true);
         }
 
-        // Recherche textuelle multichamps
         if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where(function($q) use ($s) {
-                $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('description', 'like', "%{$s}%")
-                  ->orWhereHas('shop', fn($sq) => $sq->where('location', 'like', "%{$s}%"));
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('shop', fn ($sq) => $sq->where('location', 'like', "%{$search}%"));
             });
         }
 
-        // Filtre prix max
         if ($request->filled('prix_max')) {
             $query->where('price', '<=', $request->prix_max);
         }
 
-        // Tri
         switch ($request->get('tri', 'recent')) {
             case 'prix_asc':
                 $query->orderBy('price', 'asc');
@@ -65,9 +90,6 @@ class ProductController extends Controller
         return response()->json($query->paginate(12));
     }
 
-    /**
-     * Détail d'un produit (par slug ou id)
-     */
     public function show($slugOrId)
     {
         $product = Product::with(['shop', 'category'])
@@ -77,24 +99,17 @@ class ProductController extends Controller
                     $query->orWhere('id', $slugOrId);
                 }
             })
-            ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])
+            ->whereIn('status', self::PUBLIC_STATUSES)
             ->firstOrFail();
 
         return response()->json($product);
     }
 
-    // =====================
-    // Routes vendeur
-    // =====================
-
-    /**
-     * Lister les produits du vendeur connecté
-     */
     public function vendorIndex(Request $request)
     {
         $shop = $request->user()->shop;
         if (! $shop) {
-            return response()->json(['data' => [], 'message' => 'Boutique non trouvée'], 200);
+            return response()->json(['data' => [], 'message' => 'Boutique non trouvee'], 200);
         }
 
         return response()->json(
@@ -102,74 +117,53 @@ class ProductController extends Controller
         );
     }
 
-    /**
-     * Créer un produit (vendeur)
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'price'       => 'required|numeric|min:0',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
             'promo_price' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
-            'stock'       => 'integer|min:0',
-            'image'       => 'nullable', // Peut être un fichier ou une chaîne (URL)
+            'stock' => 'integer|min:0',
+            'image' => 'nullable',
         ]);
 
         $shop = $request->user()->shop;
         if (! $shop) {
-            return response()->json(['message' => "Créez d'abord une boutique"], 403);
+            return response()->json(['message' => "Creez d'abord une boutique"], 403);
         }
 
         $slug = Str::slug($validated['name']);
         $original = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $original.'-'.$i++;
+            $slug = $original . '-' . $i++;
         }
 
         $data = $validated;
-        
-        // Gérer l'upload de l'image via Cloudinary (configuré sur Render)
         if ($request->hasFile('image')) {
-            try {
-                if (config('cloudinary.cloud_name')) {
-                    $data['image'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                        $request->file('image')->getRealPath(),
-                        ['folder' => 'blackmaket/products']
-                    )->getSecurePath();
-                } else {
-                    $path = $request->file('image')->store('products', 'public');
-                    $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Erreur upload image store: " . $e->getMessage());
-                return response()->json(['message' => 'Erreur upload: ' . $e->getMessage()], 500);
-            }
+            $data['image'] = $this->storeProductImage($request->file('image'));
         }
 
         $product = $shop->products()->create([
             ...$data,
-            'slug'   => $slug,
-            'stock'  => $validated['stock'] ?? 0,
-            'status' => 'publié',  // publié directement pour les vendeurs
+            'slug' => $slug,
+            'stock' => $validated['stock'] ?? 0,
+            'status' => 'publié',
         ]);
 
         return response()->json([
-            'message' => 'Produit créé avec succès',
+            'message' => 'Produit cree avec succes',
             'product' => $product->load('category'),
         ], 201);
     }
 
-    /**
-     * Mettre à jour un produit (vendeur)
-     */
     public function update(Request $request, Product $product)
     {
         $shop = $request->user()->shop;
         if (! $shop || $product->shop_id !== $shop->id) {
-            return response()->json(['message' => 'Non autorisé'], 403);
+            return response()->json(['message' => 'Non autorise'], 403);
         }
 
         $validated = $request->validate([
@@ -185,50 +179,34 @@ class ProductController extends Controller
 
         $data = $validated;
 
-        // Gérer l'upload si c'est un fichier
         if ($request->hasFile('image')) {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
-                $data['image'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                    $request->file('image')->getRealPath(),
-                    ['folder' => 'products']
-                )->getSecurePath();
-            } else {
-                // Fallback local
-                if ($product->image && \Illuminate\Support\Str::contains($product->image, 'storage/products')) {
-                    $oldPath = str_replace(\Illuminate\Support\Facades\Storage::url(''), '', $product->image);
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
-                }
-                $path = $request->file('image')->store('products', 'public');
-                $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+            if ($product->image && Str::contains($product->image, 'storage/products')) {
+                $oldPath = str_replace(Storage::url(''), '', $product->image);
+                Storage::disk('public')->delete($oldPath);
             }
+            $data['image'] = $this->storeProductImage($request->file('image'));
         }
 
         $product->update($data);
 
         return response()->json([
-            'message' => 'Produit mis à jour',
+            'message' => 'Produit mis a jour',
             'product' => $product->fresh()->load('category'),
         ]);
     }
 
-    /**
-     * Supprimer un produit (vendeur)
-     */
     public function destroy(Request $request, Product $product)
     {
         $shop = $request->user()->shop;
         if (! $shop || $product->shop_id !== $shop->id) {
-            return response()->json(['message' => 'Non autorisé'], 403);
+            return response()->json(['message' => 'Non autorise'], 403);
         }
 
         $product->delete();
 
-        return response()->json(['message' => 'Produit supprimé']);
+        return response()->json(['message' => 'Produit supprime']);
     }
 
-    /**
-     * Upload image produit
-     */
     public function uploadImage(Request $request)
     {
         $request->validate([
@@ -236,29 +214,15 @@ class ProductController extends Controller
         ]);
 
         try {
-            if (config('cloudinary.cloud_name')) {
-                // Upload vers Cloudinary (clés configurées dans les variables Render)
-                $url = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                    $request->file('image')->getRealPath(),
-                    [
-                        'folder'         => 'blackmaket/products',
-                        'resource_type'  => 'image',
-                        'quality'        => 'auto',
-                        'fetch_format'   => 'auto',
-                    ]
-                )->getSecurePath();
-            } else {
-                // Fallback stockage local (non persistent sur Render free)
-                $path = $request->file('image')->store('products', 'public');
-                $url = \Illuminate\Support\Facades\Storage::url($path);
-            }
-
-            return response()->json(['url' => $url]);
+            return response()->json([
+                'url' => $this->storeProductImage($request->file('image')),
+            ]);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Upload image error: ' . $e->getMessage());
+            Log::error('Upload image error: ' . $e->getMessage());
+
             return response()->json([
                 'message' => 'Erreur upload: ' . $e->getMessage(),
-                'cloudinary_configured' => (bool) config('cloudinary.cloud_name'),
+                'cloudinary_configured' => $this->cloudinaryConfigured(),
             ], 500);
         }
     }
