@@ -53,7 +53,7 @@ class DemoDataSeeder extends Seeder
             'description' => 'Expert en sculpture depuis 3 générations, l\'Atelier Kanvô propose des pièces sculptées à la main dans des bois précieux selon les techniques ancestrales du Dahomey.',
             'location' => 'Abomey',
             'status' => 'active',
-            'commission_rate' => 5.00,
+            'commission_rate' => 2.00,
         ]);
 
         // Vendeur 2 : Ibrahim Kaba
@@ -73,7 +73,7 @@ class DemoDataSeeder extends Seeder
             'description' => 'Producteur de miel bio et de produits du terroir depuis 2018. L\'excellence du terroir béninois mise en bouteille.',
             'location' => 'Dassa-Zoumé',
             'status' => 'active',
-            'commission_rate' => 5.00,
+            'commission_rate' => 2.00,
         ]);
 
         // Vendeur 3 : Aïcha Monteiro
@@ -93,7 +93,7 @@ class DemoDataSeeder extends Seeder
             'description' => 'Créatrice de mode béninoise fusionnant le wax traditionnel et les coupes modernes. Chaque pièce raconte une histoire.',
             'location' => 'Cotonou',
             'status' => 'active',
-            'commission_rate' => 5.00,
+            'commission_rate' => 2.00,
         ]);
 
         // ==============================

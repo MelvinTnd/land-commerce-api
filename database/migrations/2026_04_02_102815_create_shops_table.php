@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('rccm')->nullable();
             $table->enum('status', ['en_attente', 'active', 'suspendue'])->default('en_attente');
-            $table->decimal('commission_rate', 5, 2)->default(5.00);
+            $table->decimal('commission_rate', 5, 2)->default(2.00);
             $table->timestamps();
         });
     }

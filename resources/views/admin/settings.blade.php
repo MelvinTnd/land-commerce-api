@@ -178,11 +178,11 @@
               <div class="settings-row">
                 <div class="settings-field">
                   <label class="settings-label">Commission standard (%)</label>
-                  <input type="number" name="commission_standard" class="settings-input" value="{{ old('commission_standard', \App\Models\Setting::getValue('commission_standard', '5')) }}" min="0" max="30" step="0.5">
+                  <input type="number" name="commission_standard" class="settings-input" value="{{ old('commission_standard', \App\Models\Setting::getValue('commission_standard', '2')) }}" min="0" max="30" step="0.5">
                 </div>
                 <div class="settings-field">
                   <label class="settings-label">Commission vendeur premium (%)</label>
-                  <input type="number" name="commission_premium" class="settings-input" value="{{ old('commission_premium', \App\Models\Setting::getValue('commission_premium', '3')) }}" min="0" max="30" step="0.5">
+                  <input type="number" name="commission_premium" class="settings-input" value="{{ old('commission_premium', \App\Models\Setting::getValue('commission_premium', '1.5')) }}" min="0" max="30" step="0.5">
                 </div>
               </div>
               <div class="settings-field">
