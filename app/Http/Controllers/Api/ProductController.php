@@ -127,10 +127,9 @@ class ProductController extends Controller
 
         $data = $validated;
         
-        // Gérer l'upload de l'image (Locale ou Cloudinary)
+        // Gérer l'upload de l'image
         if ($request->hasFile('image')) {
             try {
-                // Upload sur Cloudinary si configuré
                 if (env('CLOUDINARY_CLOUD_NAME')) {
                     $uploadedFileUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                         $request->file('image')->getRealPath(),
@@ -139,13 +138,12 @@ class ProductController extends Controller
                     $data['image'] = $uploadedFileUrl;
                 } else {
                     $path = $request->file('image')->store('products', 'public');
-                    $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+                    $appUrl = rtrim(config('app.url', env('APP_URL', 'https://land-commerce-api.onrender.com')), '/');
+                    $data['image'] = $appUrl . '/storage/' . $path;
                 }
             } catch (\Exception $e) {
-                // En cas d'erreur Cloudinary, on tente un fallback local ou on log l'erreur
-                \Illuminate\Support\Facades\Log::error("Erreur Cloudinary: " . $e->getMessage());
-                $path = $request->file('image')->store('products', 'public');
-                $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+                \Illuminate\Support\Facades\Log::error("Erreur upload image store: " . $e->getMessage());
+                return response()->json(['message' => 'Erreur upload image: ' . $e->getMessage()], 500);
             }
         }
 
@@ -232,19 +230,26 @@ class ProductController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
-            $url = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                $request->file('image')->getRealPath(),
-                ['folder' => 'products']
-            )->getSecurePath();
-        } else {
-            $path = $request->file('image')->store('products', 'public');
-            $url = \Illuminate\Support\Facades\Storage::url($path);
-        }
+        try {
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $url = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('image')->getRealPath(),
+                    ['folder' => 'products']
+                )->getSecurePath();
+            } else {
+                $path = $request->file('image')->store('products', 'public');
+                // Retourner une URL absolue accessible depuis l'extérieur
+                $appUrl = rtrim(config('app.url', env('APP_URL', 'https://land-commerce-api.onrender.com')), '/');
+                $url = $appUrl . '/storage/' . $path;
+            }
 
-        return response()->json(['url' => $url]);
+            return response()->json(['url' => $url]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Upload image error: ' . $e->getMessage());
+            return response()->json(['message' => 'Erreur lors de l\'upload: ' . $e->getMessage()], 500);
+        }
     }
 }
