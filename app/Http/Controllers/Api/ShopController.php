@@ -79,18 +79,32 @@ class ShopController extends Controller
             $slug = $original . '-' . $counter++;
         }
 
-        // Upload logo
+        // Upload logo (Cloudinary ou Local)
         $logoUrl = null;
         if ($request->hasFile('logo')) {
-            $path    = $request->file('logo')->store("shops/{$slug}", 'public');
-            $logoUrl = Storage::url($path);
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $logoUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('logo')->getRealPath(),
+                    ['folder' => "shops/{$slug}"]
+                )->getSecurePath();
+            } else {
+                $path    = $request->file('logo')->store("shops/{$slug}", 'public');
+                $logoUrl = Storage::url($path);
+            }
         }
 
-        // Upload bannière
+        // Upload bannière (Cloudinary ou Local)
         $bannerUrl = null;
         if ($request->hasFile('banner')) {
-            $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
-            $bannerUrl = Storage::url($path);
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $bannerUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('banner')->getRealPath(),
+                    ['folder' => "shops/{$slug}/banner"]
+                )->getSecurePath();
+            } else {
+                $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
+                $bannerUrl = Storage::url($path);
+            }
         }
 
         // Passer l'utilisateur en vendeur
@@ -152,22 +166,36 @@ class ShopController extends Controller
 
         // Upload logo si fichier envoyé
         if ($request->hasFile('logo')) {
-            if ($shop->logo && Str::startsWith($shop->logo, '/storage/')) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $shop->logo));
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $data['logo'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('logo')->getRealPath(),
+                    ['folder' => "shops/{$shop->slug}"]
+                )->getSecurePath();
+            } else {
+                if ($shop->logo && Str::startsWith($shop->logo, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $shop->logo));
+                }
+                $path         = $request->file('logo')->store("shops/{$shop->slug}", 'public');
+                $data['logo'] = Storage::url($path);
             }
-            $path         = $request->file('logo')->store("shops/{$shop->slug}", 'public');
-            $data['logo'] = Storage::url($path);
         } elseif ($request->filled('logo')) {
             $data['logo'] = $request->logo;
         }
 
         // Upload bannière si fichier envoyé
         if ($request->hasFile('banner')) {
-            if ($shop->banner && Str::startsWith($shop->banner, '/storage/')) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $shop->banner));
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $data['banner'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('banner')->getRealPath(),
+                    ['folder' => "shops/{$shop->slug}/banner"]
+                )->getSecurePath();
+            } else {
+                if ($shop->banner && Str::startsWith($shop->banner, '/storage/')) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $shop->banner));
+                }
+                $path           = $request->file('banner')->store("shops/{$shop->slug}/banner", 'public');
+                $data['banner'] = Storage::url($path);
             }
-            $path           = $request->file('banner')->store("shops/{$shop->slug}/banner", 'public');
-            $data['banner'] = Storage::url($path);
         } elseif ($request->filled('banner')) {
             $data['banner'] = $request->banner;
         }

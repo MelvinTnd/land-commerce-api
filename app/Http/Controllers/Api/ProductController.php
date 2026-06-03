@@ -127,10 +127,19 @@ class ProductController extends Controller
 
         $data = $validated;
         
-        // Gérer l'upload de l'image si c'est un fichier
+        // Gérer l'upload de l'image (Locale ou Cloudinary)
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+            // Upload sur Cloudinary si configuré, sinon fallback local
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $uploadedFileUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('image')->getRealPath(),
+                    ['folder' => 'products']
+                )->getSecurePath();
+                $data['image'] = $uploadedFileUrl;
+            } else {
+                $path = $request->file('image')->store('products', 'public');
+                $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+            }
         }
 
         $product = $shop->products()->create([
@@ -171,14 +180,20 @@ class ProductController extends Controller
 
         // Gérer l'upload si c'est un fichier
         if ($request->hasFile('image')) {
-            // Optionnel : supprimer l'ancienne image
-            if ($product->image && \Illuminate\Support\Str::contains($product->image, 'storage/products')) {
-                $oldPath = str_replace(\Illuminate\Support\Facades\Storage::url(''), '', $product->image);
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+                $data['image'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $request->file('image')->getRealPath(),
+                    ['folder' => 'products']
+                )->getSecurePath();
+            } else {
+                // Fallback local
+                if ($product->image && \Illuminate\Support\Str::contains($product->image, 'storage/products')) {
+                    $oldPath = str_replace(\Illuminate\Support\Facades\Storage::url(''), '', $product->image);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+                $path = $request->file('image')->store('products', 'public');
+                $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
             }
-            
-            $path = $request->file('image')->store('products', 'public');
-            $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
         }
 
         $product->update($data);
@@ -213,8 +228,15 @@ class ProductController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
 
-        $path = $request->file('image')->store('products', 'public');
-        $url = \Illuminate\Support\Facades\Storage::url($path);
+        if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            $url = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                $request->file('image')->getRealPath(),
+                ['folder' => 'products']
+            )->getSecurePath();
+        } else {
+            $path = $request->file('image')->store('products', 'public');
+            $url = \Illuminate\Support\Facades\Storage::url($path);
+        }
 
         return response()->json(['url' => $url]);
     }
