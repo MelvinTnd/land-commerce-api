@@ -82,10 +82,10 @@ class ShopController extends Controller
         // Upload logo (Cloudinary ou Local)
         $logoUrl = null;
         if ($request->hasFile('logo')) {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            if (config('cloudinary.cloud_name')) {
                 $logoUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                     $request->file('logo')->getRealPath(),
-                    ['folder' => "shops/{$slug}"]
+                    ['folder' => "blackmaket/shops/{$slug}/logo"]
                 )->getSecurePath();
             } else {
                 $path    = $request->file('logo')->store("shops/{$slug}", 'public');
@@ -93,13 +93,13 @@ class ShopController extends Controller
             }
         }
 
-        // Upload bannière (Cloudinary ou Local)
+        // Upload bannière
         $bannerUrl = null;
         if ($request->hasFile('banner')) {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            if (config('cloudinary.cloud_name')) {
                 $bannerUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                     $request->file('banner')->getRealPath(),
-                    ['folder' => "shops/{$slug}/banner"]
+                    ['folder' => "blackmaket/shops/{$slug}/banner"]
                 )->getSecurePath();
             } else {
                 $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
@@ -166,10 +166,10 @@ class ShopController extends Controller
 
         // Upload logo si fichier envoyé
         if ($request->hasFile('logo')) {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            if (config('cloudinary.cloud_name')) {
                 $data['logo'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                     $request->file('logo')->getRealPath(),
-                    ['folder' => "shops/{$shop->slug}"]
+                    ['folder' => "blackmaket/shops/{$shop->slug}/logo"]
                 )->getSecurePath();
             } else {
                 if ($shop->logo && Str::startsWith($shop->logo, '/storage/')) {
@@ -184,10 +184,10 @@ class ShopController extends Controller
 
         // Upload bannière si fichier envoyé
         if ($request->hasFile('banner')) {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            if (config('cloudinary.cloud_name')) {
                 $data['banner'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                     $request->file('banner')->getRealPath(),
-                    ['folder' => "shops/{$shop->slug}/banner"]
+                    ['folder' => "blackmaket/shops/{$shop->slug}/banner"]
                 )->getSecurePath();
             } else {
                 if ($shop->banner && Str::startsWith($shop->banner, '/storage/')) {
