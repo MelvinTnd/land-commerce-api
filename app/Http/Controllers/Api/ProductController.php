@@ -129,14 +129,21 @@ class ProductController extends Controller
         
         // Gérer l'upload de l'image (Locale ou Cloudinary)
         if ($request->hasFile('image')) {
-            // Upload sur Cloudinary si configuré, sinon fallback local
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
-                $uploadedFileUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                    $request->file('image')->getRealPath(),
-                    ['folder' => 'products']
-                )->getSecurePath();
-                $data['image'] = $uploadedFileUrl;
-            } else {
+            try {
+                // Upload sur Cloudinary si configuré
+                if (env('CLOUDINARY_CLOUD_NAME')) {
+                    $uploadedFileUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                        $request->file('image')->getRealPath(),
+                        ['folder' => 'products']
+                    )->getSecurePath();
+                    $data['image'] = $uploadedFileUrl;
+                } else {
+                    $path = $request->file('image')->store('products', 'public');
+                    $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
+                }
+            } catch (\Exception $e) {
+                // En cas d'erreur Cloudinary, on tente un fallback local ou on log l'erreur
+                \Illuminate\Support\Facades\Log::error("Erreur Cloudinary: " . $e->getMessage());
                 $path = $request->file('image')->store('products', 'public');
                 $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
             }
