@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminSeeder extends Seeder
 {
@@ -14,6 +15,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $adminEmail = 'admin@heritage.bj';
+        $adminPassword = env('ADMIN_SEEDER_PASSWORD', Str::random(20));
 
         // Éviter les doublons : ne créer que si l'admin n'existe pas encore
         if (!User::where('email', $adminEmail)->exists()) {
@@ -21,12 +23,12 @@ class AdminSeeder extends Seeder
                 'name' => 'Super Administrateur',
                 'email' => $adminEmail,
                 'phone' => '+229 00 00 00 00',
-                'password' => Hash::make('Admin@1234'),
+                'password' => Hash::make($adminPassword),
                 'role' => 'admin',
                 'is_active' => true,
             ]);
 
-            $this->command->info("✅ Compte admin créé : {$adminEmail} / Admin@1234");
+            $this->command->info("Compte admin cree : {$adminEmail}. Mot de passe defini par ADMIN_SEEDER_PASSWORD ou genere aleatoirement.");
         }
         else {
             $this->command->warn("⚠️  Le compte admin {$adminEmail} existe déjà.");

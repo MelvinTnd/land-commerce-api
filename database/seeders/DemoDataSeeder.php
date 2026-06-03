@@ -14,6 +14,8 @@ class DemoDataSeeder extends Seeder
 {
     public function run(): void
     {
+        $demoAdminPassword = env('DEMO_ADMIN_PASSWORD', Str::random(16));
+
         // ==============================
         // 1. CATÉGORIES
         // ==============================
@@ -102,7 +104,7 @@ class DemoDataSeeder extends Seeder
         User::create([
             'name' => 'Admin BéninMarket',
             'email' => 'admin@beninmarket.bj',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make($demoAdminPassword),
             'role' => 'admin',
             'is_active' => true,
         ]);
@@ -286,6 +288,6 @@ class DemoDataSeeder extends Seeder
         $this->command->info('   → 8 catégories');
         $this->command->info('   → 3 vendeurs + 3 boutiques');
         $this->command->info('   → 12 produits');
-        $this->command->info('   → 1 administrateur (admin@beninmarket.bj / admin123)');
+        $this->command->info('   -> 1 administrateur (admin@beninmarket.bj / DEMO_ADMIN_PASSWORD ou mot de passe aleatoire)');
     }
 }

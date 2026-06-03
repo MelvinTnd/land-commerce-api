@@ -71,8 +71,12 @@ class ProductController extends Controller
     public function show($slugOrId)
     {
         $product = Product::with(['shop', 'category'])
-            ->where('slug', $slugOrId)
-            ->orWhere('id', is_numeric($slugOrId) ? $slugOrId : 0)
+            ->where(function ($query) use ($slugOrId) {
+                $query->where('slug', $slugOrId);
+                if (is_numeric($slugOrId)) {
+                    $query->orWhere('id', $slugOrId);
+                }
+            })
             ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])
             ->firstOrFail();
 
