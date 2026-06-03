@@ -40,7 +40,7 @@ class ProductController extends Controller
         }
 
         $path = $image->store('products', 'public');
-        return Storage::url($path);
+        return '/storage/' . ltrim($path, '/');
     }
 
     public function index(Request $request)
