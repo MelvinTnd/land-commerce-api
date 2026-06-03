@@ -52,7 +52,8 @@ php artisan view:cache
 echo ""
 echo "✅ Application prête !"
 echo "🚀 Démarrage d'Apache sur le port 80..."
-echo "   APP_URL = ${APP_URL}"
+echo "   APP_URL          = ${APP_URL}"
+echo "   CLOUDINARY       = ${CLOUDINARY_CLOUD_NAME:-non configuré}"
 echo "========================================="
 
 exec apache2-foreground

@@ -127,22 +127,21 @@ class ProductController extends Controller
 
         $data = $validated;
         
-        // Gérer l'upload de l'image
+        // Gérer l'upload de l'image via Cloudinary (configuré sur Render)
         if ($request->hasFile('image')) {
             try {
-                if (env('CLOUDINARY_CLOUD_NAME')) {
+                if (config('cloudinary.cloud_name')) {
                     $data['image'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                         $request->file('image')->getRealPath(),
-                        ['folder' => 'products']
+                        ['folder' => 'blackmaket/products']
                     )->getSecurePath();
                 } else {
                     $path = $request->file('image')->store('products', 'public');
-                    // Storage::url() construit l'URL depuis APP_URL (config/filesystems.php public.url)
                     $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Erreur upload image store: " . $e->getMessage());
-                return response()->json(['message' => 'Erreur upload image: ' . $e->getMessage()], 500);
+                return response()->json(['message' => 'Erreur upload: ' . $e->getMessage()], 500);
             }
         }
 
@@ -233,12 +232,19 @@ class ProductController extends Controller
         ]);
 
         try {
-            if (config('cloudinary.cloud_name') || env('CLOUDINARY_CLOUD_NAME')) {
+            if (config('cloudinary.cloud_name')) {
+                // Upload vers Cloudinary (clés configurées dans les variables Render)
                 $url = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                     $request->file('image')->getRealPath(),
-                    ['folder' => 'products']
+                    [
+                        'folder'         => 'blackmaket/products',
+                        'resource_type'  => 'image',
+                        'quality'        => 'auto',
+                        'fetch_format'   => 'auto',
+                    ]
                 )->getSecurePath();
             } else {
+                // Fallback stockage local (non persistent sur Render free)
                 $path = $request->file('image')->store('products', 'public');
                 $url = \Illuminate\Support\Facades\Storage::url($path);
             }
@@ -246,7 +252,10 @@ class ProductController extends Controller
             return response()->json(['url' => $url]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Upload image error: ' . $e->getMessage());
-            return response()->json(['message' => 'Erreur lors de l\'upload: ' . $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Erreur upload: ' . $e->getMessage(),
+                'cloudinary_configured' => (bool) config('cloudinary.cloud_name'),
+            ], 500);
         }
     }
 }
