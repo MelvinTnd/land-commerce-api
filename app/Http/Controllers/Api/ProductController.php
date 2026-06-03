@@ -131,15 +131,14 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             try {
                 if (env('CLOUDINARY_CLOUD_NAME')) {
-                    $uploadedFileUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                    $data['image'] = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
                         $request->file('image')->getRealPath(),
                         ['folder' => 'products']
                     )->getSecurePath();
-                    $data['image'] = $uploadedFileUrl;
                 } else {
                     $path = $request->file('image')->store('products', 'public');
-                    $appUrl = rtrim(config('app.url', env('APP_URL', 'https://land-commerce-api.onrender.com')), '/');
-                    $data['image'] = $appUrl . '/storage/' . $path;
+                    // Storage::url() construit l'URL depuis APP_URL (config/filesystems.php public.url)
+                    $data['image'] = \Illuminate\Support\Facades\Storage::url($path);
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Erreur upload image store: " . $e->getMessage());
@@ -241,9 +240,7 @@ class ProductController extends Controller
                 )->getSecurePath();
             } else {
                 $path = $request->file('image')->store('products', 'public');
-                // Retourner une URL absolue accessible depuis l'extérieur
-                $appUrl = rtrim(config('app.url', env('APP_URL', 'https://land-commerce-api.onrender.com')), '/');
-                $url = $appUrl . '/storage/' . $path;
+                $url = \Illuminate\Support\Facades\Storage::url($path);
             }
 
             return response()->json(['url' => $url]);
