@@ -8,7 +8,7 @@
     <div class="adm-page-header">
         <div>
             <h1>Tableau de bord</h1>
-            <p>Bienvenue sur BéninMarket Admin — voici l'état de la plateforme aujourd'hui.</p>
+            <p>Bienvenue sur CauriMarket Admin — voici l'état de la plateforme aujourd'hui.</p>
         </div>
         <div class="adm-header-actions">
             <a href="{{ route('admin.export.pdf') }}" class="adm-btn adm-btn-outline">
@@ -172,7 +172,7 @@
         <div class="adm-card-header">
             <div>
                 <h2>Boutiques enregistrées</h2>
-                <p>Les dernières boutiques créées sur BéninMarket.</p>
+                <p>Les dernières boutiques créées sur CauriMarket.</p>
             </div>
             <a href="{{ route('admin.sellers') }}" class="adm-card-link">
                 Voir tout <span class="material-symbols-outlined">open_in_new</span>

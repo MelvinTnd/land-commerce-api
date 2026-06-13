@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') — BéninMarket Admin</title>
+    <title>@yield('title', 'Dashboard') — CauriMarket Admin</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -456,7 +456,7 @@
                 <span class="material-symbols-outlined">storefront</span>
             </div>
             <div class="adm-logo-text">
-                <strong>BéninMarket</strong>
+                <strong>CauriMarket</strong>
                 <small>Marketplace Admin</small>
             </div>
         </div>
@@ -548,7 +548,7 @@
 
             <!-- Footer -->
             <footer class="adm-footer">
-                <span>© 2026 BéninMarket. Tous droits réservés.</span>
+                <span>© 2026 CauriMarket. Tous droits réservés.</span>
                 <div class="adm-footer-links">
                     <a href="#">Support Technique</a>
                     <a href="#">Politique de Confidentialité</a>

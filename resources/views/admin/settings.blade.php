@@ -113,7 +113,7 @@
               <div class="settings-row">
                 <div class="settings-field">
                   <label class="settings-label">Nom de la plateforme</label>
-                  <input type="text" name="platform_name" class="settings-input" value="{{ old('platform_name', \App\Models\Setting::getValue('platform_name', 'BéninMarket')) }}">
+                  <input type="text" name="platform_name" class="settings-input" value="{{ old('platform_name', \App\Models\Setting::getValue('platform_name', 'CauriMarket')) }}">
                 </div>
                 <div class="settings-field">
                   <label class="settings-label">URL du site</label>

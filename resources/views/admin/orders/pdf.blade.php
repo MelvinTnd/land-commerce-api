@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Rapport Commandes - Blackmaket</title>
+    <title>Rapport Commandes - CauriMarket</title>
     <style>
         body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.4; margin: 0; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1B6B3A; padding-bottom: 20px; margin-bottom: 30px; }
@@ -41,7 +41,7 @@
     </div>
 
     <div class="header">
-        <div class="logo">Blackmaket</div>
+        <div class="logo">CauriMarket</div>
         <div class="title">
             <h1>Rapport des Commandes</h1>
             <p>Généré le {{ date('d/m/Y à H:i') }}</p>
@@ -99,7 +99,7 @@
     </table>
 
     <div class="footer">
-        Blackmaket Plateau - Document officiel généré via le Panel Administration. Page 1 sur 1.
+        CauriMarket Plateau - Document officiel généré via le Panel Administration. Page 1 sur 1.
     </div>
 
 </body>

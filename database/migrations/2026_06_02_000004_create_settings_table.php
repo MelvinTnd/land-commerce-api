@@ -18,7 +18,7 @@ return new class extends Migration
         // Seed default settings
         $now = now();
         DB::table('settings')->insert([
-            ['key' => 'platform_name', 'value' => 'BéninMarket', 'created_at' => $now, 'updated_at' => $now],
+            ['key' => 'platform_name', 'value' => 'CauriMarket', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'platform_url', 'value' => 'https://beninmarket.bj', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'platform_description', 'value' => 'La première marketplace de produits artisanaux et culturels du Bénin.', 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'contact_email', 'value' => 'contact@beninmarket.bj', 'created_at' => $now, 'updated_at' => $now],

@@ -69,7 +69,7 @@
   <div class="adm-page-header">
     <div>
       <h1>Gestion des Commandes</h1>
-      <p>Suivez et gérez toutes les commandes passées sur la plateforme BéninMarket.</p>
+      <p>Suivez et gérez toutes les commandes passées sur la plateforme CauriMarket.</p>
     </div>
     <div class="adm-header-actions">
       <div class="export-dropdown" id="export-dropdown">

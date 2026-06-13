@@ -102,7 +102,7 @@ class DemoDataSeeder extends Seeder
         // 3. ADMIN
         // ==============================
         User::create([
-            'name' => 'Admin BéninMarket',
+            'name' => 'Admin CauriMarket',
             'email' => 'admin@beninmarket.bj',
             'password' => Hash::make($demoAdminPassword),
             'role' => 'admin',

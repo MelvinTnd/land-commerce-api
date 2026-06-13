@@ -113,7 +113,7 @@
   <div class="adm-page-header">
     <div>
       <h1>Catalogue Produits</h1>
-      <p>Modérez et gérez tous les produits listés sur BéninMarket.</p>
+      <p>Modérez et gérez tous les produits listés sur CauriMarket.</p>
     </div>
     <div class="adm-header-actions">
       <button class="adm-btn adm-btn-outline" onclick="toggleFiltersPanel()">

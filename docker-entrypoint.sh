@@ -2,7 +2,7 @@
 set -e
 
 echo "========================================="
-echo "   Blackmaket - Démarrage du serveur"
+echo "   CauriMarket - Démarrage du serveur"
 echo "========================================="
 
 # ── 1. Vérifier APP_KEY ────────────────────────────────────────────────────

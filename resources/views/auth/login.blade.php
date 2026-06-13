@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Connexion — BéninMarket Admin</title>
+    <title>Connexion — CauriMarket Admin</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -454,13 +454,13 @@
                 <span class="material-symbols-outlined">storefront</span>
             </div>
             <div>
-                <div class="brand-name">BéninMarket</div>
+                <div class="brand-name">CauriMarket</div>
                 <div class="brand-sub">Marketplace Admin</div>
             </div>
         </div>
 
         <div class="login-left-content">
-            <h1>Gérez votre<br><span>BéninMarket</span><br>Marketplace.</h1>
+            <h1>Gérez votre<br><span>CauriMarket</span><br>Marketplace.</h1>
             <p>
                 Plateforme d&apos;administration complète pour superviser vendeurs,
                 produits, commandes et les boutiques artisanales du Bénin.
@@ -495,7 +495,7 @@
         </div>
 
         <div class="login-left-footer">
-            © {{ date('Y') }} BéninMarket. Tous droits réservés.
+            © {{ date('Y') }} CauriMarket. Tous droits réservés.
         </div>
     </div>
 

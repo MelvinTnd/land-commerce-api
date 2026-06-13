@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Configuration Cloudinary pour Blackmaket
+ * Configuration Cloudinary pour CauriMarket
  *
  * Le package cloudinary-labs/cloudinary-laravel v3 utilise CLOUDINARY_URL
  * au format : cloudinary://API_KEY:API_SECRET@CLOUD_NAME

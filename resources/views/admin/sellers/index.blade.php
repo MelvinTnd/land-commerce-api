@@ -101,7 +101,7 @@
   <div class="adm-page-header">
     <div>
       <h1>Gestion des Vendeurs</h1>
-      <p>Gérez et vérifiez les artisans et boutiques sur la plateforme BéninMarket.</p>
+      <p>Gérez et vérifiez les artisans et boutiques sur la plateforme CauriMarket.</p>
     </div>
     <div class="adm-header-actions">
       <button class="adm-btn adm-btn-outline" onclick="exportSellersCSV()">

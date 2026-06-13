@@ -6,7 +6,7 @@ services:
     plan: free
     envVars:
       - key: APP_NAME
-        value: BéninMarket
+        value: CauriMarket
       - key: APP_ENV
         value: production
       - key: APP_DEBUG

@@ -38,7 +38,7 @@
   <div class="adm-page-header">
     <div>
       <h1>Gestion Utilisateurs</h1>
-      <p>Gérez les comptes, rôles et accès des membres de la plateforme BéninMarket.</p>
+      <p>Gérez les comptes, rôles et accès des membres de la plateforme CauriMarket.</p>
     </div>
     <div class="adm-header-actions">
       <button class="adm-btn adm-btn-outline" onclick="exportUsersCSV()">
