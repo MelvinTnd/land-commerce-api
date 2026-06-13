@@ -79,31 +79,41 @@ class ShopController extends Controller
             $slug = $original . '-' . $counter++;
         }
 
-        // Upload logo (Cloudinary ou Local)
+        // Upload logo — les erreurs d'upload ne bloquent pas la création
         $logoUrl = null;
         if ($request->hasFile('logo')) {
-            if (config('cloudinary.cloud_name')) {
-                $logoUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                    $request->file('logo')->getRealPath(),
-                    ['folder' => "blackmaket/shops/{$slug}/logo"]
-                )->getSecurePath();
-            } else {
-                $path    = $request->file('logo')->store("shops/{$slug}", 'public');
-                $logoUrl = Storage::url($path);
+            try {
+                if (config('cloudinary.cloud_name')) {
+                    $logoUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                        $request->file('logo')->getRealPath(),
+                        ['folder' => "caurimarket/shops/{$slug}/logo"]
+                    )->getSecurePath();
+                } else {
+                    $path    = $request->file('logo')->store("shops/{$slug}", 'public');
+                    $logoUrl = Storage::url($path);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Logo upload failed for shop {$slug}: " . $e->getMessage());
+                // On continue sans logo — la boutique sera créée quand même
             }
         }
 
-        // Upload bannière
+        // Upload bannière — même logique de tolérance
         $bannerUrl = null;
         if ($request->hasFile('banner')) {
-            if (config('cloudinary.cloud_name')) {
-                $bannerUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
-                    $request->file('banner')->getRealPath(),
-                    ['folder' => "blackmaket/shops/{$slug}/banner"]
-                )->getSecurePath();
-            } else {
-                $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
-                $bannerUrl = Storage::url($path);
+            try {
+                if (config('cloudinary.cloud_name')) {
+                    $bannerUrl = \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::upload(
+                        $request->file('banner')->getRealPath(),
+                        ['folder' => "caurimarket/shops/{$slug}/banner"]
+                    )->getSecurePath();
+                } else {
+                    $path      = $request->file('banner')->store("shops/{$slug}/banner", 'public');
+                    $bannerUrl = Storage::url($path);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Banner upload failed for shop {$slug}: " . $e->getMessage());
+                // On continue sans bannière
             }
         }
 
