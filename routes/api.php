@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\ForumController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
@@ -51,6 +53,17 @@ Route::get('/promotions', function () {
             ->get()
     );
 });
+
+// Articles / Actualités (publiques)
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/featured', [ArticleController::class, 'featured']);
+Route::get('/articles/categories', [ArticleController::class, 'categories']);
+Route::get('/articles/{id}', [ArticleController::class, 'show']);
+
+// Forum (lecture publique)
+Route::get('/forum/topics', [ForumController::class, 'index']);
+Route::get('/forum/topics/{id}', [ForumController::class, 'show']);
+Route::get('/forum/tags', [ForumController::class, 'tags']);
 
 // ============================================================
 // ROUTES SÉCURISÉES (token Sanctum requis)
@@ -132,4 +145,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::get('/reviews/eligible-shops', [ReviewController::class, 'eligibleShops']);
     Route::get('/shops/{shopId}/can-review', [ReviewController::class, 'canReview']);
+
+    // --- Forum (écriture auth requise) ---
+    Route::post('/forum/topics', [ForumController::class, 'store']);
+    Route::post('/forum/topics/{id}/replies', [ForumController::class, 'reply']);
+    Route::post('/forum/topics/{id}/vote', [ForumController::class, 'vote']);
 });
