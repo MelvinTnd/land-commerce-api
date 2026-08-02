@@ -31,7 +31,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($categories as $cat) {
-            Category::create($cat);
+            Category::firstOrCreate(['slug' => $cat['slug']], $cat);
         }
 
         // ==============================
@@ -39,75 +39,89 @@ class DemoDataSeeder extends Seeder
         // ==============================
 
         // Vendeur 1 : Koffi Zinsou
-        $vendeur1 = User::create([
-            'name' => 'Koffi Zinsou',
-            'email' => 'koffi@beninmarket.bj',
-            'phone' => '+22996001122',
-            'password' => Hash::make('password123'),
-            'role' => 'vendeur',
-            'is_active' => true,
-        ]);
+        $vendeur1 = User::firstOrCreate(
+            ['email' => 'koffi@beninmarket.bj'],
+            [
+                'name' => 'Koffi Zinsou',
+                'phone' => '+22996001122',
+                'password' => Hash::make('password123'),
+                'role' => 'vendeur',
+                'is_active' => true,
+            ]
+        );
 
-        $shop1 = Shop::create([
-            'user_id' => $vendeur1->id,
-            'name' => 'Atelier Kanvô',
-            'slug' => 'atelier-kanvo',
-            'description' => 'Expert en sculpture depuis 3 générations, l\'Atelier Kanvô propose des pièces sculptées à la main dans des bois précieux selon les techniques ancestrales du Dahomey.',
-            'location' => 'Abomey',
-            'status' => 'active',
-            'commission_rate' => 2.00,
-        ]);
+        $shop1 = Shop::firstOrCreate(
+            ['slug' => 'atelier-kanvo'],
+            [
+                'user_id' => $vendeur1->id,
+                'name' => 'Atelier Kanvô',
+                'description' => 'Expert en sculpture depuis 3 générations, l\'Atelier Kanvô propose des pièces sculptées à la main dans des bois précieux selon les techniques ancestrales du Dahomey.',
+                'location' => 'Abomey',
+                'status' => 'active',
+                'commission_rate' => 2.00,
+            ]
+        );
 
         // Vendeur 2 : Ibrahim Kaba
-        $vendeur2 = User::create([
-            'name' => 'Ibrahim Kaba',
-            'email' => 'ibrahim@beninmarket.bj',
-            'phone' => '+22997003344',
-            'password' => Hash::make('password123'),
-            'role' => 'vendeur',
-            'is_active' => true,
-        ]);
+        $vendeur2 = User::firstOrCreate(
+            ['email' => 'ibrahim@beninmarket.bj'],
+            [
+                'name' => 'Ibrahim Kaba',
+                'phone' => '+22997003344',
+                'password' => Hash::make('password123'),
+                'role' => 'vendeur',
+                'is_active' => true,
+            ]
+        );
 
-        $shop2 = Shop::create([
-            'user_id' => $vendeur2->id,
-            'name' => 'Kaba & Fils',
-            'slug' => 'kaba-et-fils',
-            'description' => 'Producteur de miel bio et de produits du terroir depuis 2018. L\'excellence du terroir béninois mise en bouteille.',
-            'location' => 'Dassa-Zoumé',
-            'status' => 'active',
-            'commission_rate' => 2.00,
-        ]);
+        $shop2 = Shop::firstOrCreate(
+            ['slug' => 'kaba-et-fils'],
+            [
+                'user_id' => $vendeur2->id,
+                'name' => 'Kaba & Fils',
+                'description' => 'Producteur de miel bio et de produits du terroir depuis 2018. L\'excellence du terroir béninois mise en bouteille.',
+                'location' => 'Dassa-Zoumé',
+                'status' => 'active',
+                'commission_rate' => 2.00,
+            ]
+        );
 
         // Vendeur 3 : Aïcha Monteiro
-        $vendeur3 = User::create([
-            'name' => 'Aïcha Monteiro',
-            'email' => 'aicha@beninmarket.bj',
-            'phone' => '+22991005566',
-            'password' => Hash::make('password123'),
-            'role' => 'vendeur',
-            'is_active' => true,
-        ]);
+        $vendeur3 = User::firstOrCreate(
+            ['email' => 'aicha@beninmarket.bj'],
+            [
+                'name' => 'Aïcha Monteiro',
+                'phone' => '+22991005566',
+                'password' => Hash::make('password123'),
+                'role' => 'vendeur',
+                'is_active' => true,
+            ]
+        );
 
-        $shop3 = Shop::create([
-            'user_id' => $vendeur3->id,
-            'name' => 'Monteiro Fashion',
-            'slug' => 'monteiro-fashion',
-            'description' => 'Créatrice de mode béninoise fusionnant le wax traditionnel et les coupes modernes. Chaque pièce raconte une histoire.',
-            'location' => 'Cotonou',
-            'status' => 'active',
-            'commission_rate' => 2.00,
-        ]);
+        $shop3 = Shop::firstOrCreate(
+            ['slug' => 'monteiro-fashion'],
+            [
+                'user_id' => $vendeur3->id,
+                'name' => 'Monteiro Fashion',
+                'description' => 'Créatrice de mode béninoise fusionnant le wax traditionnel et les coupes modernes. Chaque pièce raconte une histoire.',
+                'location' => 'Cotonou',
+                'status' => 'active',
+                'commission_rate' => 2.00,
+            ]
+        );
 
         // ==============================
         // 3. ADMIN
         // ==============================
-        User::create([
-            'name' => 'Admin CauriMarket',
-            'email' => 'admin@beninmarket.bj',
-            'password' => Hash::make($demoAdminPassword),
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@beninmarket.bj'],
+            [
+                'name' => 'Admin CauriMarket',
+                'password' => Hash::make($demoAdminPassword),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
 
         // ==============================
         // 4. PRODUITS
@@ -173,7 +187,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($produitsShop1 as $p) {
-            $shop1->products()->create($p);
+            $shop1->products()->firstOrCreate(['slug' => $p['slug']], $p);
         }
 
         // --- Boutique 2 : Kaba & Fils (Alimentation) ---
@@ -227,7 +241,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($produitsShop2 as $p) {
-            $shop2->products()->create($p);
+            $shop2->products()->firstOrCreate(['slug' => $p['slug']], $p);
         }
 
         // --- Boutique 3 : Monteiro Fashion (Mode) ---
@@ -281,7 +295,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($produitsShop3 as $p) {
-            $shop3->products()->create($p);
+            $shop3->products()->firstOrCreate(['slug' => $p['slug']], $p);
         }
 
         $this->command->info('✅ Données de démonstration créées avec succès !');

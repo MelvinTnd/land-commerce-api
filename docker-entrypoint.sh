@@ -40,10 +40,10 @@ done
 echo "🗄️  Exécution des migrations..."
 php artisan migrate --force --no-interaction
 
-# ── 5bis. Seed uniquement si le catalogue est vide (premier démarrage) ────
-SEED_COUNT=$(php artisan tinker --execute="echo \\App\\Models\\Category::count();" --no-interaction 2>/dev/null || echo "1")
+# ── 5bis. Seed uniquement si le catalogue produits est vide ───────────────
+SEED_COUNT=$(php artisan tinker --execute="echo \\App\\Models\\Product::count();" --no-interaction 2>/dev/null || echo "1")
 if [ "$SEED_COUNT" = "0" ]; then
-    echo "🌱 Base vide — insertion des données de démonstration..."
+    echo "🌱 Catalogue vide — insertion des données de démonstration..."
     php artisan db:seed --force --no-interaction
 fi
 

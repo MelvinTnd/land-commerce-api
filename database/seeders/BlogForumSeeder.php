@@ -77,7 +77,7 @@ class BlogForumSeeder extends Seeder
         ];
 
         foreach ($articles as $data) {
-            Article::create($data);
+            Article::firstOrCreate(['slug' => $data['slug']], $data);
         }
 
         // ==============================
@@ -129,7 +129,7 @@ class BlogForumSeeder extends Seeder
         ];
 
         foreach ($topics as $data) {
-            ForumTopic::create($data);
+            ForumTopic::firstOrCreate(['titre' => $data['titre']], $data);
         }
 
         $this->command->info('✅ Blog & Forum seedés avec succès !');
