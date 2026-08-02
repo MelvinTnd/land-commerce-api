@@ -40,6 +40,13 @@ done
 echo "🗄️  Exécution des migrations..."
 php artisan migrate --force --no-interaction
 
+# ── 5bis. Seed uniquement si la base est vide (premier démarrage) ─────────
+SEED_COUNT=$(php artisan tinker --execute="echo \\App\\Models\\User::count();" --no-interaction 2>/dev/null || echo "1")
+if [ "$SEED_COUNT" = "0" ]; then
+    echo "🌱 Base vide — insertion des données de démonstration..."
+    php artisan db:seed --force --no-interaction
+fi
+
 # ── 6. Cache (vider d'abord pour forcer la relecture des variables) ────────
 echo "🔧 Mise en cache de la configuration..."
 php artisan config:clear

@@ -78,7 +78,8 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 
 // Boutiques publiques
 Route::get('/shops', [ShopController::class, 'index']);
-Route::get('/shops/{slug}', [ShopController::class, 'show']);
+Route::get('/shops/{shop}', [ShopController::class, 'show']);
+Route::get('/shops/{shop}/products', [ShopController::class, 'products']);
 
 // Avis publics d'une boutique
 Route::get('/shops/{slug}/reviews', [ReviewController::class, 'indexByShop']);

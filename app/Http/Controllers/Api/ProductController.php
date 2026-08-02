@@ -87,7 +87,7 @@ class ProductController extends Controller
                 $query->latest();
         }
 
-        return response()->json($query->paginate(12));
+        return response()->json($query->paginate((int) $request->input('per_page', 12)));
     }
 
     public function show($slugOrId)

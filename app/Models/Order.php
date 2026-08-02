@@ -11,6 +11,8 @@ class Order extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['shop_name'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -19,5 +21,12 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getShopNameAttribute()
+    {
+        $item = $this->items->first();
+
+        return $item?->shop?->name;
     }
 }

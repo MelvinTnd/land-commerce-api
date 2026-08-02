@@ -37,18 +37,42 @@ class ShopController extends Controller
     }
 
     /**
-     * Détail d'une boutique (avec produits, utilisateur et stats)
+     * Détail d'une boutique (avec utilisateur et stats)
      */
-    public function show($slug)
+    public function show($slugOrId)
     {
-        $shop = Shop::with([
-            'user:id,name,email',
-            'products' => fn ($q) => $q->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])->latest(),
-        ])
-            ->where('slug', 'ILIKE', $slug)
+        $shop = Shop::with('user:id,name,email')
+            ->where(function ($query) use ($slugOrId) {
+                $query->where('slug', 'ILIKE', $slugOrId);
+                if (is_numeric($slugOrId)) {
+                    $query->orWhere('id', $slugOrId);
+                }
+            })
             ->firstOrFail();
 
         return response()->json($shop);
+    }
+
+    /**
+     * Produits publics d'une boutique (paginés), par slug ou par id
+     */
+    public function products(Request $request, $slugOrId)
+    {
+        $shop = Shop::where(function ($query) use ($slugOrId) {
+            $query->where('slug', 'ILIKE', $slugOrId);
+            if (is_numeric($slugOrId)) {
+                $query->orWhere('id', $slugOrId);
+            }
+        })
+            ->firstOrFail();
+
+        return response()->json(
+            $shop->products()
+                ->with('category:id,name,slug,icon')
+                ->whereIn('status', ['publié', 'publie', 'active', 'mis_en_avant'])
+                ->latest()
+                ->paginate((int) $request->input('per_page', 12))
+        );
     }
 
     /**

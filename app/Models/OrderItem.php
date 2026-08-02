@@ -11,6 +11,8 @@ class OrderItem extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['image'];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -24,5 +26,10 @@ class OrderItem extends Model
     public function shop()
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function getImageAttribute()
+    {
+        return $this->product?->image;
     }
 }
