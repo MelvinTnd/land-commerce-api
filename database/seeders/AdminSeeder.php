@@ -15,7 +15,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $adminEmail = 'admin@heritage.bj';
-        $adminPassword = env('ADMIN_SEEDER_PASSWORD', Str::random(20));
+        $adminPassword = env('ADMIN_SEEDER_PASSWORD', 'password123');
 
         // Éviter les doublons : ne créer que si l'admin n'existe pas encore
         if (!User::where('email', $adminEmail)->exists()) {
@@ -28,7 +28,7 @@ class AdminSeeder extends Seeder
                 'is_active' => true,
             ]);
 
-            $this->command->info("Compte admin cree : {$adminEmail}. Mot de passe defini par ADMIN_SEEDER_PASSWORD ou genere aleatoirement.");
+            $this->command->info("Compte admin cree : {$adminEmail}. Mot de passe defini par ADMIN_SEEDER_PASSWORD ou 'password123'.");
         }
         else {
             $this->command->warn("⚠️  Le compte admin {$adminEmail} existe déjà.");

@@ -26,6 +26,29 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
+// Setup Admin Temporaire
+Route::get('/setup-admin', function () {
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@beninmarket.bj'],
+        [
+            'name' => 'Admin CauriMarket',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]
+    );
+    // Si l'utilisateur existait déjà, on force le mot de passe
+    $user->password = \Illuminate\Support\Facades\Hash::make('password123');
+    $user->role = 'admin'; // S'assurer qu'il est bien admin
+    $user->save();
+
+    return response()->json([
+        'message' => 'Compte administrateur configuré avec succès.',
+        'email' => 'admin@beninmarket.bj',
+        'password' => 'password123'
+    ]);
+});
+
 // Catégories
 Route::get('/categories', function () {
     return response()->json(
