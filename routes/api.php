@@ -28,7 +28,8 @@ Route::post('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
 // Setup Admin Temporaire
 Route::get('/setup-admin', function () {
-    $user = \App\Models\User::firstOrCreate(
+    // Admin 1
+    $user1 = \App\Models\User::firstOrCreate(
         ['email' => 'admin@beninmarket.bj'],
         [
             'name' => 'Admin CauriMarket',
@@ -37,15 +38,30 @@ Route::get('/setup-admin', function () {
             'is_active' => true,
         ]
     );
-    // Si l'utilisateur existait déjà, on force le mot de passe
-    $user->password = \Illuminate\Support\Facades\Hash::make('password123');
-    $user->role = 'admin'; // S'assurer qu'il est bien admin
-    $user->save();
+    $user1->password = \Illuminate\Support\Facades\Hash::make('password123');
+    $user1->role = 'admin';
+    $user1->save();
+
+    // Admin 2
+    $user2 = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@heritage.bj'],
+        [
+            'name' => 'Super Administrateur',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]
+    );
+    $user2->password = \Illuminate\Support\Facades\Hash::make('password123');
+    $user2->role = 'admin';
+    $user2->save();
 
     return response()->json([
-        'message' => 'Compte administrateur configuré avec succès.',
-        'email' => 'admin@beninmarket.bj',
-        'password' => 'password123'
+        'message' => 'Comptes administrateurs configurés avec succès.',
+        'comptes' => [
+            ['email' => 'admin@beninmarket.bj', 'password' => 'password123'],
+            ['email' => 'admin@heritage.bj', 'password' => 'password123']
+        ]
     ]);
 });
 
